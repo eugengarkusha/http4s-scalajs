@@ -12,3 +12,13 @@ addSbtPlugin("com.vmunier" % "sbt-web-scalajs" % "1.0.7")
 addSbtPlugin("com.typesafe.sbteclipse" % "sbteclipse-plugin" % "5.2.2")
 
 addSbtPlugin("com.typesafe.sbt" % "sbt-twirl" % "1.3.15")
+
+
+// sbt-web plugin for adding checksum files for web assets
+addSbtPlugin("com.typesafe.sbt" % "sbt-digest" % "1.1.4")
+
+// sbt-web plugin for gzip compressing web assets
+addSbtPlugin("com.typesafe.sbt" % "sbt-gzip" % "1.0.2")
+
+// Module bundler for Scala.js projects that use NPM packages.
+addSbtPlugin("ch.epfl.scala" % "sbt-web-scalajs-bundler" % "0.9.0")

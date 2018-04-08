@@ -6,6 +6,6 @@ import org.scalajs.dom
 object ScalaJSExample extends  {
 
   def main(args: Array[String]): Unit = {
-    dom.document.getElementById("scalajsShoutOut").textContent =  SharedMessages.itWorks
+    LogInForm.Props().render.renderIntoDOM(dom.document.getElementById("scalajsShoutOut"))
   }
 }

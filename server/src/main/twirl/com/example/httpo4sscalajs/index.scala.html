@@ -1,0 +1,18 @@
+@(message: String)
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title>"http4s-scalajs"</title>
+</head>
+<body>
+    <h2>Http4s and Scala.js share a same message</h2>
+    <ul>
+        <li>HTTP4s shouts out: <em>@message</em></li>
+        <li>Scala.js shouts out: <em id="scalajsShoutOut"></em></li>
+    </ul>
+    @scalajs.html.scripts("client", name => s"/assets/$name", name => getClass.getResource(s"/public/$name") != null)
+</body>
+</html>
+

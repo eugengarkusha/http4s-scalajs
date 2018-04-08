@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="sbt: org.http4s:http4s-websocket_2.12:0.2.0:jar">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.ivy2/cache/org.http4s/http4s-websocket_2.12/jars/http4s-websocket_2.12-0.2.0.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.ivy2/cache/org.http4s/http4s-websocket_2.12/srcs/http4s-websocket_2.12-0.2.0-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

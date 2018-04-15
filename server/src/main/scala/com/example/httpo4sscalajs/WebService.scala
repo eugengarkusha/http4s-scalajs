@@ -30,49 +30,50 @@ import scalatags.Text.all._
 class WebService[F[_]](implicit F: Effect[F], m:InvariantMonoidal[F]) extends Http4sDsl[F] {
 
 
+  def bootStrap(): F[Response[F]] = {
+
+    def pathToBundleAsset(projectName: String): Either[String, String] = {
+      val name = projectName.toLowerCase
+      val bundleNames = Seq(name + "-opt-bundle.js", name + "-fastopt-bundle.js")
+      bundleNames.filter(dn => getClass.getResource("/public/" + dn) != null).map("/assets/" + _) match{
+        case Seq(bundleAssetPath) => Right(bundleAssetPath)
+        case bundleAssetPaths =>  Left(s"expected to have excactly one js app asset but got ${bundleAssetPaths}.")
+      }
+    }
+
+    pathToBundleAsset("client").fold(
+      InternalServerError(_),
+      path => Ok.apply(
+        html(
+          head(
+            title:="http4s-scalajs"
+          ),
+          body(
+            h2("Http4s and Scala.js share a same message"),
+            ul(
+              li("HTTP4s shouts out", em(SharedMessages.itWorks)),
+              li("Scala.js  shouts out", em(id := "scalajsShoutOut"))
+            ),
+            script(src := path)
+          )
+        ).render,
+        `Content-Type`(MediaType.`text/html`)
+      )
+    )
+  }
+
+
   def rootService(
                    implicit scheduler: Scheduler,
                    executionContext: ExecutionContext): HttpService[F] =
     HttpService[F] {
 
-      case GET -> Root =>
-
-      def pathToBundleAsset(projectName: String): Either[String, String] = {
-        val name = projectName.toLowerCase
-        val bundleNames = Seq(name + "-opt-bundle.js", name + "-fastopt-bundle.js")
-        bundleNames.filter(dn => getClass.getResource("/public/" + dn) != null).map("/assets/" + _) match{
-          case Seq(bundleAssetPath) => Right(bundleAssetPath)
-          case bundleAssetPaths =>  Left(s"expected to have excactly one js app asset but got ${bundleAssetPaths}.")
-        }
-      }
-
-      //html.index(SharedMessages.itWorks)
-        pathToBundleAsset("client").fold(
-          InternalServerError(_),
-          path => Ok(
-              html(
-                head(
-                  title:="http4s-scalajs"
-                ),
-                body(
-                  h2("Http4s and Scala.js share a same message"),
-                  ul(
-                    li("HTTP4s shouts out", em(SharedMessages.itWorks)),
-                    li("Scala.js  shouts out", em(id := "scalajsShoutOut"))
-                  ),
-                  script(src := path)
-                )
-            ).render,
-            `Content-Type`(MediaType.`text/html`)
-          )
-        )
-
-//        Ok()
+      case GET -> Root => bootStrap()
 
       case GET -> Root / "assets"/ name =>
         val str = Option(this.getClass.getClassLoader.getResourceAsStream(s"public/$name"))
         str.map(s => Ok(io.readInputStream[F](m.point(s), 1000)))
-        .getOrElse(NotFound("nofo"))
+        .getOrElse(NotFound("nofo!"))
 
     }
 

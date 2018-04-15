@@ -1,9 +1,12 @@
+import Dependencies.Versions
+import sbt.addCompilerPlugin
 
 inThisBuild(List(
   scalaVersion := Dependencies.Versions.scala,
   organization := "com.example",
   scalacOptions := Seq(
     "-encoding", "UTF-8",
+    "-Ypartial-unification",
     "-deprecation"//, // warning and location for usages of deprecated APIs
    // "-feature", // warning and location for usages of features that should be imported explicitly
    // "-unchecked", // additional warnings where generated code depends on assumptions
@@ -15,19 +18,23 @@ inThisBuild(List(
 ))
 
 
-//need this for circe
-lazy val macroParadiseSettings = Seq(
+lazy val compilerPlugins = Seq(
   resolvers += Resolver.sonatypeRepo("releases"),
+  addCompilerPlugin(Dependencies.`kind-projector` cross CrossVersion.binary),
+  //need this for circe
   addCompilerPlugin(Dependencies.paradise cross CrossVersion.full)
+
 )
+
 
 lazy val shared = (crossProject.crossType(CrossType.Pure) in file("shared"))
   .settings(
     libraryDependencies ++= Seq(
       Dependencies.`circe-generic`.value,
-      Dependencies.`circe-java8`.value
-    ),
-    macroParadiseSettings
+      Dependencies.`circe-java8`.value,
+      Dependencies.`cats-effect`.value,
+    ) ++ Dependencies.tsecAll,
+    compilerPlugins
   )
   .jsConfigure(_ enablePlugins ScalaJSWeb)
   .jsSettings(
@@ -37,6 +44,7 @@ lazy val shared = (crossProject.crossType(CrossType.Pure) in file("shared"))
   )
 lazy val sharedJvm = shared.jvm
 lazy val sharedJs = shared.js
+
 
 
 
@@ -51,7 +59,7 @@ lazy val client = (project in file("client"))
     Dependencies.`scalajs-dom`.value,
     Dependencies.`circe-generic`.value,
     Dependencies.`circe-parser`.value,
-    Dependencies.`circe-java8`.value)
+    Dependencies.`circe-java8`.value) ++ Dependencies.tsecAll
   ).value,
   npmDependencies in Compile ++= Seq(
     Dependencies.react,
@@ -68,7 +76,7 @@ lazy val client = (project in file("client"))
 lazy val server = (project in file("server"))
   .enablePlugins(WebScalaJSBundlerPlugin)
   .settings(
-  macroParadiseSettings,
+  compilerPlugins,
   scalaJSProjects := Seq(client),
   pipelineStages in Assets := Seq(scalaJSPipeline),
   pipelineStages := Seq(digest, gzip),
@@ -77,12 +85,12 @@ lazy val server = (project in file("server"))
   libraryDependencies ++= Seq(
     Dependencies.`circe-generic`.value,
     Dependencies.`circe-java8`.value,
-    Dependencies.`http4s-core`.value,
-    Dependencies.`http4s-circe`.value,
-    Dependencies.`http4s-dsl`.value,
+    Dependencies.`http4s-core`,
+    Dependencies.`http4s-circe`,
+    Dependencies.`http4s-dsl`,
     Dependencies.scalatags.value,
-    Dependencies.`http4s-blaze-server`.value
-),
+    Dependencies.`http4s-blaze-server`.value,
+    "org.reactormonk" %% "cryptobits" % "1.1") ++ Dependencies.tsecAll,
   WebKeys.packagePrefix in Assets := "public/",
   managedClasspath in Runtime += (packageBin in Assets).value,
   // Compile the project before generating Eclipse files, so that generated .scala or .class files for Twirl templates are present

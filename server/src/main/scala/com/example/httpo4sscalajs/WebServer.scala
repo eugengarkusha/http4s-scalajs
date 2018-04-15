@@ -23,7 +23,7 @@ object WebServer extends App{
 
   implicit val scheduler = Scheduler.fromScheduledExecutorService(new ScheduledThreadPoolExecutor(2))
   val service: WebService[IO] = new WebService[IO]
-  val authService: TsecAuthService[IO] = new TsecAuthService[IO]
+  val authService: AuthedService[IO] = new AuthedService[IO]
 
   val s1: HttpService[IO] = service.rootService
   val s2: HttpService[IO] = authService.service

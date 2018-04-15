@@ -15,8 +15,9 @@ import org.scalajs.dom.ext.Ajax
 case class AuthResponse[O](data: O, authToken: String)
 
 //TODO: Fix messages where needed
-class AuthDal(http: Http)(implicit ec: ExecutionContext) {
+object AuthDal {
 
+  import utils.CBT.executionContext
 
   private def processReq[R: Decoder: ClassTag](r: Future[XMLHttpRequest]): Future[Either[HttpError, R]] = {
     def process(r: XMLHttpRequest): Either[HttpError, R] = Right(parserResponse(r))

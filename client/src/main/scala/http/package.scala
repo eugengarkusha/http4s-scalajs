@@ -59,8 +59,8 @@ package object http {
 //    val headers: Map[STring]
 //  }
 
-  class Http(implicit ec: ExecutionContext) {
-
+  object Http {
+    import utils.CBT.executionContext
     def post[I: Encoder, O: Decoder: ClassTag](url: String, request: I): Future[Either[HttpError, O]] =
       forFuture(Ajax.post(url = url, data = request.asJson.noSpaces, headers = headers))
 

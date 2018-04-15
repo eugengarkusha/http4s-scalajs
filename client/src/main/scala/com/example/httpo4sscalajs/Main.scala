@@ -11,7 +11,7 @@ object Main extends  {
   private val routerConfig: RouterConfig[Loc] = RouterConfigDsl[Loc].buildConfig { dsl =>
     import dsl._
     (
-      staticRoute("#login", LoginLoc) ~> renderR(ctrl => LogInPage.Props().render) |
+      staticRoute("#login", LoginLoc) ~> renderR(ctrl => SignInPage.Props().render) |
         staticRoute(root, HomeLoc) ~> renderR(ctrl =>  HomePage.Props().render)
       ).notFound(redirectToPage(HomeLoc)(Redirect.Replace))
   }

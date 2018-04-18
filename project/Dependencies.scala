@@ -20,6 +20,8 @@ object Dependencies extends DependencyBuilders{
     val react = "16.0"
     val `kind-projector` = "0.9.6"
     val tsec = "0.0.1-M11"
+    val monocle = "1.5.1-cats"
+
   }
 
   val paradise = "org.scalamacros" % "paradise" % Versions.paradise
@@ -52,18 +54,25 @@ object Dependencies extends DependencyBuilders{
   // used to bootstrap js app
   val scalatags = Def.setting("com.lihaoyi" %% "scalatags" % "0.6.7")
 
+  val `monocle-macro` = Def.setting("com.github.julien-truffaut" %%% "monocle-macro" % Versions.monocle)
+  val `monocle-core` = Def.setting("com.github.julien-truffaut" %%% "monocle-core" % Versions.monocle)
   val `cats-effect` =  Def.setting("org.typelevel" %%% "cats-effect" % Versions.cats)
   val `cats-core` =  Def.setting("org.typelevel" %%% "cats-core" % Versions.cats)
   val scalatest = Def.setting("org.scalatest" %% "scalatest" % Versions.scalatest)
   val `circe-generic` = Def.setting("io.circe" %%% "circe-generic" % Versions.circe)
   val `circe-java8` = Def.setting("io.circe" %%% "circe-java8" % Versions.circe)
   val `circe-parser` = Def.setting("io.circe" %%% "circe-parser" % Versions.circe)
+
+  private val sjsreact = "com.github.japgolly.scalajs-react"
   // java.time for scalajs
   val `scala-java-time` = Def.setting("io.github.cquiroz" %%% "scala-java-time" % Versions.`scala-java-time`)
-  val `scalajs-react-core` = Def.setting("com.github.japgolly.scalajs-react" %%% "core" % Versions.`scalajs-react`)
-  val `scalajs-react-extra` = Def.setting("com.github.japgolly.scalajs-react" %%% "extra" % Versions.`scalajs-react`)
+  val `scalajs-react-core` = Def.setting(sjsreact %%% "core" % Versions.`scalajs-react`)
+  val `scalajs-react-extra` = Def.setting(sjsreact %%% "extra" % Versions.`scalajs-react`)
+  val `scalajs-monocle` = Def.setting(sjsreact %%% "ext-monocle-cats" %  Versions.`scalajs-react`)
   val `scalacss-ext-react` = Def.setting("com.github.japgolly.scalacss" %%% "ext-react" % Versions.scalacss)
   val `scalajs-dom` = Def.setting("org.scala-js" %%% "scalajs-dom" % Versions.`scalajs-dom`)
+
+
 
   //compiler plugins
   val `kind-projector` = "org.spire-math" %% "kind-projector" % Versions.`kind-projector`

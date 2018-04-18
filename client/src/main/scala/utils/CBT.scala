@@ -7,6 +7,7 @@ import scala.scalajs.concurrent.JSExecutionContext
 import scala.util.{Failure, Success}
 
 
+//TODO: remove this and use japgolly.scalajs.react.extra.Ajax!!
 case class CBT[V] private(cbf: CallbackTo[Future[V]]) {
 
   implicit def ec: ExecutionContext = CBT.executionContext

@@ -1,13 +1,13 @@
 package dal
 
 import auth.dto.{SignInData, User}
-import http.securedHttp.methods
+import http.httpClient.methods
 import io.circe.syntax._
 import org.scalajs.dom.XMLHttpRequest
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.reflect.ClassTag
-import http.securedHttp.{headers => allHeaders, _}
+import http.httpClient.{headers => allHeaders, _}
 import io.circe.{Decoder, Encoder}
 import org.scalajs.dom.ext.Ajax
 
@@ -29,10 +29,9 @@ object AuthDal {
       url = "/api/auth/sign-in",
       data = data.asJson.noSpaces,
       headers = allHeaders
-      //processing both Ok and notOk responces equally
     ))(
       succ => {
-        setTokenFromAuthResp(succ)
+//        setTokenFromAuthResp(succ)
         Right(parserResponse[User](succ))
       },
       err => Left(err.status + err.responseText))

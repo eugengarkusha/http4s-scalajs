@@ -6,14 +6,14 @@ import japgolly.scalajs.react.vdom.html_<^._
 
 object HomePage {
 
-  case class Props(rctl: RouterCtl[Loc]) {
+  case class Props(rctl: RouterCtl[AppLoc]) {
     @inline def render: VdomElement = Component(this)
   }
 
 
   final class Backend($: BackendScope[Props, Unit]) {
     def render(p: Props): VdomElement =
-      p.rctl.link(SignInLoc)("sign in")
+      p.rctl.link(TestLoc)("test")
   }
 
   val Component = ScalaComponent.builder[Props]("LogInForm")

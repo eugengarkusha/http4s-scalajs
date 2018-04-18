@@ -51,12 +51,16 @@ lazy val sharedJs = shared.js
 lazy val client = (project in file("client"))
   .enablePlugins(ScalaJSPlugin, ScalaJSWeb, ScalaJSBundlerPlugin)
   .settings(
+    compilerPlugins,
     scalaJSUseMainModuleInitializer := true,
   libraryDependencies ++= Def.setting(Seq(
     Dependencies.`cats-core`.value,
+    Dependencies.`monocle-macro`.value,
+    Dependencies.`monocle-core`.value,
     Dependencies.`scalajs-react-core`.value,
     Dependencies.`scalajs-react-extra`.value,
     Dependencies.`scalacss-ext-react`.value,
+    Dependencies.`scalajs-monocle`.value,
     Dependencies.`scalajs-dom`.value,
     Dependencies.`circe-generic`.value,
     Dependencies.`circe-parser`.value,

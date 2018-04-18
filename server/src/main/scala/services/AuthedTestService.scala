@@ -15,21 +15,17 @@ import org.http4s.headers._
 import org.http4s.circe._
 import org.http4s.{HttpService, _}
 import tsec.authentication._
-import tsec.jws.mac.{JWSMacCV, JWTMac}
-import tsec.jwt.JWTClaims
-import tsec.mac.jca.{HMACSHA256, MacSigningKey}
 
 import scala.concurrent.duration._
 
-class AuthedTestService[F[_]](authentiator: JWTAuthenticator[F, User, User, HMACSHA256])(implicit F: Effect[F],
-                                                                                         m: InvariantMonoidal[F]) {
+class AuthedTestService[F[_], A](authentiator: Authenticator[F, User, User, A])(implicit F: Effect[F],
+                                                                                m: InvariantMonoidal[F]) {
 
   implicit val dsl = Http4sDsl[F]
 
   import dsl._
 
-  val Auth: SecuredRequestHandler[F, User, User, AugmentedJWT[HMACSHA256, User]] =
-    SecuredRequestHandler(authentiator)
+  val Auth: SecuredRequestHandler[F, User, User, A] = SecuredRequestHandler(authentiator)
 
   /*
   Now from here, if want want to create services, we simply use the following
@@ -45,9 +41,8 @@ class AuthedTestService[F[_]](authentiator: JWTAuthenticator[F, User, User, HMAC
       2. The Authenticator (i.e token)
       3. The identity (i.e in this case, User)
          */
-        println("TOKEN ID " + request.authenticator.id)
-        println("USER " + user)
-        Ok.apply(s"tested at ${ZonedDateTime.now()}. User data in token: $user".asJson)
+
+        Ok.apply(s"tested at ${ZonedDateTime.now()}. User data in cookie: $user".asJson)
     }
   )
 

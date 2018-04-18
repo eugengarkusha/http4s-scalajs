@@ -6,9 +6,8 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.scalajs.concurrent.JSExecutionContext
 import scala.util.{Failure, Success}
 
-
 //TODO: remove this and use japgolly.scalajs.react.extra.Ajax!!
-case class CBT[V] private(cbf: CallbackTo[Future[V]]) {
+case class CBT[V] private (cbf: CallbackTo[Future[V]]) {
 
   implicit def ec: ExecutionContext = CBT.executionContext
 
@@ -22,9 +21,10 @@ case class CBT[V] private(cbf: CallbackTo[Future[V]]) {
 
   def <<(v: CBT[_]): CBT[V] = flatMap(x => v.map(_ => x))
 
-  def recover(f: Throwable => V): CBT[V] = CBT(cbf.attempt.map(_.fold(f.andThen(Future.successful), _.recover {
-    case t: Throwable => f(t)
-  })))
+  def recover(f: Throwable => V): CBT[V] =
+    CBT(cbf.attempt.map(_.fold(f.andThen(Future.successful), _.recover {
+      case t: Throwable => f(t)
+    })))
 
   def onError(f: Throwable => CBT[Unit]): CBT[V] = {
     def onErr(err: Throwable): CBT[V] = f(err).flatMap(_ => CBT.raiseError[V](err))
@@ -33,11 +33,15 @@ case class CBT[V] private(cbf: CallbackTo[Future[V]]) {
       cbf.attempt.flatMap(
         _.fold(
           err => onErr(err).cbf,
-          t => CBT.fromFut(
-            t.map(CBT.pure).recover {
-              case err: Throwable => onErr(err)
-            }
-          ).flatten.cbf
+          t =>
+            CBT
+              .fromFut(
+                t.map(CBT.pure).recover {
+                  case err: Throwable => onErr(err)
+                }
+              )
+              .flatten
+              .cbf
         )
       )
     )
@@ -45,7 +49,8 @@ case class CBT[V] private(cbf: CallbackTo[Future[V]]) {
 
   def flatten[R](implicit ev: V <:< CBT[R]): CBT[R] = flatMap(ev)
 
-  def ensure(cond: V => Boolean)(err: => String): CBT[V] = flatMap(v => if (cond(v)) CBT.pure(v) else CBT(CallbackTo(Future.failed(new Exception(err)))))
+  def ensure(cond: V => Boolean)(err: => String): CBT[V] =
+    flatMap(v => if (cond(v)) CBT.pure(v) else CBT(CallbackTo(Future.failed(new Exception(err)))))
 
   //Its required to explicitly rethrow exception. ScalaJs-react will not do it by default(see Callback.future doc)
   def cb: Callback = cbf.map(_.onComplete(_.fold[Unit](throw _, identity[V])))
@@ -100,4 +105,3 @@ object CBT {
   }
 
 }
-

@@ -17,7 +17,7 @@ object SignInPage {
   case class State(email: String, pass: String)
   val emptyState = State("", "")
 
-  final class Backend($: BackendScope[Props, Unit]) {
+  final class Backend($ : BackendScope[Props, Unit]) {
     def render(p: Props): VdomElement = {
       val state = p.sh.value
       import p.sh.setState
@@ -25,18 +25,24 @@ object SignInPage {
       <.div(
         <.input.text(^.onChange ==> ((e: ReactEventFromInput) => setState(state.copy(email = e.target.value)))),
         <.input.text(^.onChange ==> ((e: ReactEventFromInput) => setState(state.copy(pass = e.target.value)))),
-        <.button("go", ^.onClick --> AuthDal.signIn(SignInData(state.email, state.pass)).map { e =>
-          e.fold(
-            err =>
-              Callback(println("FAIL:" + err)),
-             user => p.onSignIn(user) >> p.rctl.set(HomeLoc)
-          )
-        }.callback)
+        <.button(
+          "go",
+          ^.onClick --> AuthDal
+            .signIn(SignInData(state.email, state.pass))
+            .map { e =>
+              e.fold(
+                err => Callback(println("FAIL:" + err)),
+                user => p.onSignIn(user) >> p.rctl.set(HomeLoc)
+              )
+            }
+            .callback
+        )
       )
     }
   }
 
-  val Component = ScalaComponent.builder[Props]("LogInForm")
+  val Component = ScalaComponent
+    .builder[Props]("LogInForm")
     .renderBackend[Backend]
     .build
 }

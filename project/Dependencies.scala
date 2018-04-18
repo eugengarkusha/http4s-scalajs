@@ -1,7 +1,7 @@
 import org.scalajs.sbtplugin.impl.DependencyBuilders
 import sbt._
 
-object Dependencies extends DependencyBuilders{
+object Dependencies extends DependencyBuilders {
   type NpmDependency = (String, String)
 
   object Versions {
@@ -26,10 +26,10 @@ object Dependencies extends DependencyBuilders{
 
   val paradise = "org.scalamacros" % "paradise" % Versions.paradise
 
-  val `http4s-core` = "org.http4s" %% "http4s-core" %  Versions.http4s
+  val `http4s-core` = "org.http4s" %% "http4s-core" % Versions.http4s
   val `http4s-circe` = "org.http4s" %% "http4s-circe" % Versions.http4s
-  val `http4s-dsl` = "org.http4s" %% "http4s-dsl" %  Versions.http4s
-  val `http4s-blaze-server` = Def.setting("org.http4s" %% "http4s-blaze-server" %  Versions.http4s)
+  val `http4s-dsl` = "org.http4s" %% "http4s-dsl" % Versions.http4s
+  val `http4s-blaze-server` = Def.setting("org.http4s" %% "http4s-blaze-server" % Versions.http4s)
 
   val `tsec-common` = "io.github.jmcardon" %% "tsec-common" % Versions.tsec
   val `tsec-jwt-core` = "io.github.jmcardon" %% "tsec-jwt-core" % Versions.tsec
@@ -47,17 +47,16 @@ object Dependencies extends DependencyBuilders{
     "io.github.jmcardon" %% "tsec-libsodium" % Versions.tsec,
     "io.github.jmcardon" %% "tsec-jwt-mac" % Versions.tsec,
     "io.github.jmcardon" %% "tsec-jwt-sig" % Versions.tsec,
-    "io.github.jmcardon" %% "tsec-http4s" % Versions.tsec)
-
-
+    "io.github.jmcardon" %% "tsec-http4s" % Versions.tsec
+  )
 
   // used to bootstrap js app
   val scalatags = Def.setting("com.lihaoyi" %% "scalatags" % "0.6.7")
 
   val `monocle-macro` = Def.setting("com.github.julien-truffaut" %%% "monocle-macro" % Versions.monocle)
   val `monocle-core` = Def.setting("com.github.julien-truffaut" %%% "monocle-core" % Versions.monocle)
-  val `cats-effect` =  Def.setting("org.typelevel" %%% "cats-effect" % Versions.cats)
-  val `cats-core` =  Def.setting("org.typelevel" %%% "cats-core" % Versions.cats)
+  val `cats-effect` = Def.setting("org.typelevel" %%% "cats-effect" % Versions.cats)
+  val `cats-core` = Def.setting("org.typelevel" %%% "cats-core" % Versions.cats)
   val scalatest = Def.setting("org.scalatest" %% "scalatest" % Versions.scalatest)
   val `circe-generic` = Def.setting("io.circe" %%% "circe-generic" % Versions.circe)
   val `circe-java8` = Def.setting("io.circe" %%% "circe-java8" % Versions.circe)
@@ -68,11 +67,9 @@ object Dependencies extends DependencyBuilders{
   val `scala-java-time` = Def.setting("io.github.cquiroz" %%% "scala-java-time" % Versions.`scala-java-time`)
   val `scalajs-react-core` = Def.setting(sjsreact %%% "core" % Versions.`scalajs-react`)
   val `scalajs-react-extra` = Def.setting(sjsreact %%% "extra" % Versions.`scalajs-react`)
-  val `scalajs-monocle` = Def.setting(sjsreact %%% "ext-monocle-cats" %  Versions.`scalajs-react`)
+  val `scalajs-monocle` = Def.setting(sjsreact %%% "ext-monocle-cats" % Versions.`scalajs-react`)
   val `scalacss-ext-react` = Def.setting("com.github.japgolly.scalacss" %%% "ext-react" % Versions.scalacss)
   val `scalajs-dom` = Def.setting("org.scala-js" %%% "scalajs-dom" % Versions.`scalajs-dom`)
-
-
 
   //compiler plugins
   val `kind-projector` = "org.spire-math" %% "kind-projector" % Versions.`kind-projector`

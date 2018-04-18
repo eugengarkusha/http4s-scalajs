@@ -10,13 +10,13 @@ object HomePage {
     @inline def render: VdomElement = Component(this)
   }
 
-
-  final class Backend($: BackendScope[Props, Unit]) {
+  final class Backend($ : BackendScope[Props, Unit]) {
     def render(p: Props): VdomElement =
       p.rctl.link(TestLoc)("test")
   }
 
-  val Component = ScalaComponent.builder[Props]("LogInForm")
+  val Component = ScalaComponent
+    .builder[Props]("LogInForm")
     .renderBackend[Backend]
     .build
 }

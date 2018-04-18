@@ -31,7 +31,6 @@ object WebServer extends App {
   private val key = HMACSHA256.unsafeGenerateKey
   implicit val scheduler = Scheduler.fromScheduledExecutorService(new ScheduledThreadPoolExecutor(2))
 
-
 /////// Setting up the authenticator////////////////////////////////////////////////////////////////////////////////
 
   // Not using token auth for authentication of SPA
@@ -44,7 +43,6 @@ object WebServer extends App {
     expiryDuration = 20.seconds, // Absolute expiration time
     maxIdle = None, // Rolling window expiration. Makes expiration time refresh after each sucessfull request
     path = Some("/")
-
   )
 
   val cookieBackingStore = new BackingStore[IO, UUID, AuthenticatedCookie[HMACSHA256, User]] {

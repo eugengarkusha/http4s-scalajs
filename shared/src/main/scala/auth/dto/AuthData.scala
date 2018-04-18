@@ -10,6 +10,6 @@ import io.circe.generic.JsonCodec
   */
 @JsonCodec
 case class SignInData(
-                       email: String,
-                       password: String
-                     )
+    email: String,
+    password: String
+)

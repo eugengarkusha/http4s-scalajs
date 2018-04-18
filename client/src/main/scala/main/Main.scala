@@ -4,21 +4,30 @@ import auth.dto.User
 import components._
 import japgolly.scalajs.react.{Callback, CallbackTo}
 import japgolly.scalajs.react.extra.router.StaticDsl.Route
-import japgolly.scalajs.react.extra.router.{BaseUrl, Redirect, Router, RouterConfig, RouterConfigDsl, RouterCtl, StaticDsl}
+import japgolly.scalajs.react.extra.router.{
+  BaseUrl,
+  Redirect,
+  Router,
+  RouterConfig,
+  RouterConfigDsl,
+  RouterCtl,
+  StaticDsl
+}
 import org.scalajs.dom
 
-object UserHolder{
+object UserHolder {
   private var user: Option[User] = None
 
   //This is shit: do compile time separation!
-  val getUserUnsafe = () => user.getOrElse(throw new IllegalStateException("Trying to access user but no user is defined"))
-  def isAuthenticated = user.isDefined
+  def getUserUnsafe(): User =
+    user.getOrElse(throw new IllegalStateException("Trying to access user but no user is defined"))
+  def isAuthenticated: Boolean = user.isDefined
   def setUser(u: User): Unit = user = Some(u)
   def clearUser: Unit = user = None
 
 }
 object Main extends {
-import UserHolder._
+  import UserHolder._
 
   private val routerConfig: RouterConfig[Loc] = RouterConfigDsl[Loc].buildConfig { dsl =>
     import dsl._
@@ -28,8 +37,8 @@ import UserHolder._
       Callback(setUser(user)) >> rctrl.set(HomeLoc)
     }
 
-    def staticApp(route: Route[Unit], loc: AppLoc) = {
-      staticRoute(route, loc) ~> renderR(c => AppContainer.Props(setUser(_), getUserUnsafe, c.narrow[AppLoc], loc).render)
+    def staticApp(route: Route[Unit], loc: AppLoc, user: => User) = {
+      staticRoute(route, loc) ~> renderR(c => AppContainer.Props(user, c.narrow[AppLoc], loc).render)
     }
 
     def staticAuth(route: Route[Unit], loc: AuthLoc) = {
@@ -43,16 +52,16 @@ import UserHolder._
 
     //////////////////////////////////////Routes//////////////////////////////////////////////////////////////////////////
 
-    val authorizedRoutes: StaticDsl.Rule[Loc] = authrorized{
-      staticApp("#test", TestLoc) |
-        staticApp(root, HomeLoc)
+    val authorizedRoutes = authrorized {
+      staticApp("#test", TestLoc, getUserUnsafe()) |
+        staticApp(root, HomeLoc, getUserUnsafe())
     }
 
     val unAuthorizedRoutes = {
       staticAuth("#sign-in", SignInLoc)
     }
 
-   (authorizedRoutes | unAuthorizedRoutes).notFound(redirectToPage(HomeLoc)(Redirect.Replace))
+    (authorizedRoutes | unAuthorizedRoutes).notFound(redirectToPage(HomeLoc)(Redirect.Replace))
 
   }
 

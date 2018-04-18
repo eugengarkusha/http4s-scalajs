@@ -20,12 +20,12 @@ object SignInPage {
   final class Backend($: BackendScope[Props, State]) {
     def render(p: Props, s: State): VdomElement =
       <.div(
-        <.input.text(^.onChange ==> ((e: ReactEventFromInput) =>  $.setState(s.copy(email = e.target.value)))),
-        <.input.text(^.onChange ==> ((e: ReactEventFromInput) =>  $.setState(s.copy(pass = e.target.value)))),
-        <.button(^.onClick --> AuthDal.signIn(SignInData(s.email, s.pass)).map{e =>
+        <.input.text(^.onChange ==> ((e: ReactEventFromInput) => $.setState(s.copy(email = e.target.value)))),
+        <.input.text(^.onChange ==> ((e: ReactEventFromInput) => $.setState(s.copy(pass = e.target.value)))),
+        <.button("go", ^.onClick --> AuthDal.signIn(SignInData(s.email, s.pass)).map { e =>
           e.fold(
             err =>
-              Callback(println("FAIL:"+err)),
+              Callback(println("FAIL:" + err)),
             user => {
               println("SUCC:" + user)
               p.rctl.set(TestLoc)

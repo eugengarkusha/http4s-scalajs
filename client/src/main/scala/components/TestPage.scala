@@ -1,5 +1,7 @@
 package components
 
+import java.time.Instant
+
 import dal.TestDal
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.vdom.html_<^._
@@ -17,8 +19,12 @@ object TestPage {
   final class Backend($: BackendScope[Props, State]) {
     def render(p: Props, s: State): VdomElement =
       <.div(
-        <.button(^.onClick --> TestDal.test.map(v => $.modState(_.copy(response = v.fold(_.toString, _.toString)))).callback),
-        <.span("response:"+ s.response)
+        <.div(s"token expires in 5 sec from now"),
+        <.button("click me", ^.onClick --> TestDal.test.map(v => {
+          println("got v=" + v)
+          $.modState(_.copy(response = v.fold(_.toString, identity)))
+        }).callback),
+        <.span(s"server response:  ${s.response}")
       )
   }
 

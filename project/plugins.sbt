@@ -13,6 +13,8 @@ addSbtPlugin("com.typesafe.sbteclipse" % "sbteclipse-plugin" % "5.2.2")
 
 addSbtPlugin("com.typesafe.sbt" % "sbt-twirl" % "1.3.15")
 
+//formatting plugin (config at .scalafmt.conf)
+addSbtPlugin("com.geirsson" % "sbt-scalafmt" % "1.4.0")
 
 // sbt-web plugin for adding checksum files for web assets
 addSbtPlugin("com.typesafe.sbt" % "sbt-digest" % "1.1.4")

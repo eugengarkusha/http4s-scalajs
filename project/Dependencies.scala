@@ -6,6 +6,7 @@ object Dependencies extends DependencyBuilders{
 
   object Versions {
     val scala = "2.12.5"
+    val cats = "0.10"
 
     val http4s = "0.18.7"
     val twirl = "1.3.15"
@@ -27,10 +28,11 @@ object Dependencies extends DependencyBuilders{
   val `http4s-circe` = "org.http4s" %% "http4s-circe" % Versions.http4s
   val `http4s-dsl` = "org.http4s" %% "http4s-dsl" %  Versions.http4s
   val `http4s-blaze-server` = Def.setting("org.http4s" %% "http4s-blaze-server" %  Versions.http4s)
+
   val `tsec-common` = "io.github.jmcardon" %% "tsec-common" % Versions.tsec
   val `tsec-jwt-core` = "io.github.jmcardon" %% "tsec-jwt-core" % Versions.tsec
   val `tsec-jwt-mac` = "io.github.jmcardon" %% "tsec-jwt-mac" % Versions.tsec
-  //TODO: SEPARATE
+  //TODO: SEPARATE!
   val tsecAll = Seq(
     "io.github.jmcardon" %% "tsec-common" % Versions.tsec,
     "io.github.jmcardon" %% "tsec-password" % Versions.tsec,
@@ -50,7 +52,8 @@ object Dependencies extends DependencyBuilders{
   // used to bootstrap js app
   val scalatags = Def.setting("com.lihaoyi" %% "scalatags" % "0.6.7")
 
-  val `cats-effect` =  Def.setting("org.typelevel" %%% "cats-effect" % "0.10")
+  val `cats-effect` =  Def.setting("org.typelevel" %%% "cats-effect" % Versions.cats)
+  val `cats-core` =  Def.setting("org.typelevel" %%% "cats-core" % Versions.cats)
   val scalatest = Def.setting("org.scalatest" %% "scalatest" % Versions.scalatest)
   val `circe-generic` = Def.setting("io.circe" %%% "circe-generic" % Versions.circe)
   val `circe-java8` = Def.setting("io.circe" %%% "circe-java8" % Versions.circe)

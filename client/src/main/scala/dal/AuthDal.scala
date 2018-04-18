@@ -18,7 +18,7 @@ object AuthDal {
 
   import utils.CBT.executionContext
 
-  private def processReq[R: Decoder: ClassTag](r: Future[XMLHttpRequest]): Future[Either[HttpError, R]] = {
+  private def processReq[R: Decoder : ClassTag](r: Future[XMLHttpRequest]): Future[Either[HttpError, R]] = {
     def process(r: XMLHttpRequest): Either[HttpError, R] = Right(parserResponse(r))
     //processing both Ok and notOk responces equally
     foldResp(r)(process, err => Left(HttpError(err.status, err.responseText)))
@@ -32,11 +32,10 @@ object AuthDal {
       //processing both Ok and notOk responces equally
     ))(
       succ => {
-      setTokenFromAuthResp(succ)
-      Right(parserResponse[User](succ))
-    },
-      err => Left(err.responseText))
-
+        setTokenFromAuthResp(succ)
+        Right(parserResponse[User](succ))
+      },
+      err => Left(err.status + err.responseText))
 
 
 }

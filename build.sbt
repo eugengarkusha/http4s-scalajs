@@ -53,6 +53,7 @@ lazy val client = (project in file("client"))
   .settings(
     scalaJSUseMainModuleInitializer := true,
   libraryDependencies ++= Def.setting(Seq(
+    Dependencies.`cats-core`.value,
     Dependencies.`scalajs-react-core`.value,
     Dependencies.`scalajs-react-extra`.value,
     Dependencies.`scalacss-ext-react`.value,

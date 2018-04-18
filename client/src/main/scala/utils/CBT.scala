@@ -7,7 +7,7 @@ import scala.scalajs.concurrent.JSExecutionContext
 import scala.util.{Failure, Success}
 
 
-case class CBT[V] private (cbf: CallbackTo[Future[V]]) {
+case class CBT[V] private(cbf: CallbackTo[Future[V]]) {
 
   implicit def ec: ExecutionContext = CBT.executionContext
 
@@ -18,6 +18,7 @@ case class CBT[V] private (cbf: CallbackTo[Future[V]]) {
   }
 
   def >>[R](v: CBT[R]): CBT[R] = flatMap(_ => v)
+
   def <<(v: CBT[_]): CBT[V] = flatMap(x => v.map(_ => x))
 
   def recover(f: Throwable => V): CBT[V] = CBT(cbf.attempt.map(_.fold(f.andThen(Future.successful), _.recover {

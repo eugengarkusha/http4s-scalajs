@@ -1,20 +1,17 @@
-package com.example.httpo4sscalajs
+package services
 
 import java.util.concurrent.ScheduledThreadPoolExecutor
 
 import cats.effect.IO
+import fs2._
+import org.http4s._
 import org.http4s.server.blaze.BlazeBuilder
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import fs2._
-import cats.SemigroupK
-import cats.data.{Kleisli, OptionT}
-import org.http4s._
 //import org.http4s.implicits._
 //import cats.data.{Kleisli, OptionT}
 //import cats.implicits._
 //import cats.instances.
-import cats.syntax.semigroupk._
 
 object WebServer extends App{
 
@@ -22,7 +19,7 @@ object WebServer extends App{
 
 
   implicit val scheduler = Scheduler.fromScheduledExecutorService(new ScheduledThreadPoolExecutor(2))
-  val service: WebService[IO] = new WebService[IO]
+  val service: BootStrapService[IO] = new BootStrapService[IO]
   val authService: AuthedService[IO] = new AuthedService[IO]
 
   val s1: HttpService[IO] = service.rootService

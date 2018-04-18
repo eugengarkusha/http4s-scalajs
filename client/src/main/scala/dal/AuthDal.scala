@@ -1,20 +1,19 @@
 package dal
 
 import auth.dto.{SignInData, User}
-import http.Http
+import http.securedHttp.methods
 import io.circe.syntax._
 import org.scalajs.dom.XMLHttpRequest
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.reflect.ClassTag
-import http._
+import http.securedHttp.{headers => allHeaders, _}
 import io.circe.{Decoder, Encoder}
 import org.scalajs.dom.ext.Ajax
 
 
 case class AuthResponse[O](data: O, authToken: String)
 
-//TODO: Fix messages where needed
 object AuthDal {
 
   import utils.CBT.executionContext
@@ -29,11 +28,11 @@ object AuthDal {
     foldResp(Ajax.post(
       url = "/api/auth/sign-in",
       data = data.asJson.noSpaces,
-      headers = _root_.http.headers
+      headers = allHeaders
       //processing both Ok and notOk responces equally
     ))(
       succ => {
-      setTokenFromResp(succ).left.foreach(err => throw new Exception(err))
+      setTokenFromAuthResp(succ)
       Right(parserResponse[User](succ))
     },
       err => Left(err.responseText))

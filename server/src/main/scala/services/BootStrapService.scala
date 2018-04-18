@@ -1,33 +1,17 @@
-package com.example.httpo4sscalajs
+package services
 
-import java.io.File
-
-import cats.{Id, InvariantMonoidal}
+import cats.InvariantMonoidal
 import cats.effect._
-import cats.implicits._
-import com.example.httpo4sscalajs.shared.SharedMessages
-import fs2.{Scheduler, Stream}
-import fs2.io
+import fs2.{Scheduler, io}
 import org.http4s._
-import org.http4s.Http4s._
-import org.http4s.circe._
 import org.http4s.dsl.Http4sDsl
-import org.http4s._
-import org.http4s.dsl.io._
-import java.nio
-
 import org.http4s.headers._
-import scala.concurrent._
-import scala.concurrent.duration._
-import scala.concurrent.duration._
-import cats.effect._
-import fs2.Scheduler
-import org.http4s._
-import org.http4s.dsl.io._
 import scalatags.Text.all._
 
+import scala.concurrent._
 
-class WebService[F[_]](implicit F: Effect[F], m:InvariantMonoidal[F]) extends Http4sDsl[F] {
+
+class BootStrapService[F[_]](implicit F: Effect[F], m:InvariantMonoidal[F]) extends Http4sDsl[F] {
 
 
   def bootStrap(): F[Response[F]] = {
@@ -49,11 +33,7 @@ class WebService[F[_]](implicit F: Effect[F], m:InvariantMonoidal[F]) extends Ht
             title:="http4s-scalajs"
           ),
           body(
-            h2("Http4s and Scala.js share a same message"),
-            ul(
-              li("HTTP4s shouts out", em(SharedMessages.itWorks)),
-              li("Scala.js  shouts out", em(id := "scalajsShoutOut"))
-            ),
+            div(id := "bootstrap"),
             script(src := path)
           )
         ).render,

@@ -1,3 +1,5 @@
+package http
+
 import io.circe.{Decoder, Encoder}
 import io.circe.parser.parse
 import org.scalajs.dom
@@ -9,9 +11,9 @@ import scala.reflect.ClassTag
 import io.circe.syntax._
 import dom.window.localStorage
 
-//TODO: think how to do local storage side effects in safer way
-package object http {
 
+//TODO: think how to do local storage side effects in safer way
+object securedHttp {
 
   private val authHeader = "Authorization"
   private val authPrefix = "Bearer "
@@ -21,15 +23,16 @@ package object http {
   private val commonHeaders: Map[String, String] =
     Map("Content-Type" -> "application/json")
 
-  private def tokenHeader: Option[(String, String)] = {
-    def mkTokenHeader(token: String) = authHeader -> (authPrefix+token)
-    Option(localStorage.getItem(tokenKey)).map(mkTokenHeader)
-  }
+  // Doing uncontrolled side effects (need to store token in localStorage as per best practices)
+  private def tokenHeader: Option[(String, String)] =
+    Option(localStorage.getItem(tokenKey)).map(t => authHeader -> (authPrefix + t))
 
-  def setTokenFromResp(req: XMLHttpRequest): Either[String, Unit] =
-    Option(req.getResponseHeader(authHeader))
-      .map(v =>  localStorage.setItem(tokenKey,v.stripPrefix(authPrefix)))
-      .toRight("Could not find auth token in http response")
+  // Doing uncontrolled side effects (need to store token in localStorage as per best practices)
+  def setTokenFromAuthResp(req: XMLHttpRequest): Unit = {
+    val header = Option(req.getResponseHeader(authHeader))
+      .getOrElse(throw new AssertionError("Could not find auth token in http response"))
+    localStorage.setItem(tokenKey, header.stripPrefix(authPrefix))
+  }
 
   def headers: Map[String, String] = commonHeaders ++ tokenHeader
 
@@ -59,7 +62,7 @@ package object http {
 //    val headers: Map[STring]
 //  }
 
-  object Http {
+  object methods {
     import utils.CBT.executionContext
     def post[I: Encoder, O: Decoder: ClassTag](url: String, request: I): Future[Either[HttpError, O]] =
       forFuture(Ajax.post(url = url, data = request.asJson.noSpaces, headers = headers))

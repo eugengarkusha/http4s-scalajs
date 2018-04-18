@@ -43,7 +43,7 @@ case class CBT[V] private (cbf: CallbackTo[Future[V]]) {
 
   def flatten[R](implicit ev: V <:< CBT[R]): CBT[R] = flatMap(ev)
 
-  def ensure(cond: V => Boolean)(err: => ErrorMagnet): CBT[V] = flatMap(v => if (cond(v)) CBT.pure(v) else err.raise[V])
+  def ensure(cond: V => Boolean)(err: => String): CBT[V] = flatMap(v => if (cond(v)) CBT.pure(v) else CBT(CallbackTo(Future.failed(new Exception(err)))))
 
   //Its required to explicitly rethrow exception. ScalaJs-react will not do it by default(see Callback.future doc)
   def cb: Callback = cbf.map(_.onComplete(_.fold[Unit](throw _, identity[V])))

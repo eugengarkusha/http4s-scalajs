@@ -1,19 +1,19 @@
-package com.example.httpo4sscalajs
+package components
 
-import com.example.httpo4sscalajs.shared.SharedMessages
 import japgolly.scalajs.react._
+import japgolly.scalajs.react.extra.router.RouterCtl
 import japgolly.scalajs.react.vdom.html_<^._
 
 object HomePage {
 
-  final case class Props() {
+  case class Props(rctl: RouterCtl[Loc]) {
     @inline def render: VdomElement = Component(this)
   }
 
 
   final class Backend($: BackendScope[Props, Unit]) {
     def render(p: Props): VdomElement =
-      <.div(SharedMessages.itWorks)
+      p.rctl.link(SignInLoc)("sign in")
   }
 
   val Component = ScalaComponent.builder[Props]("LogInForm")

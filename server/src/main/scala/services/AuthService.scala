@@ -58,7 +58,7 @@ class AuthService[F[_], A](authentiator: Authenticator[F, User, User, A],
         for {
           //check what statius does it retun if ecoding fails. (in case of 500 use attemptAs)
           sd <- request.as[SignInData]
-          usr <- findUser(null)
+          usr <- findUser(sd)
           r <- usr
             .map(signInResponse(_))
             .getOrElse(m.point(Response[F](Unauthorized)))

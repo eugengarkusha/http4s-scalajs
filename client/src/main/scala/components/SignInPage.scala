@@ -6,7 +6,6 @@ import japgolly.scalajs.react._
 import japgolly.scalajs.react.vdom.html_<^._
 import japgolly.scalajs.react.extra._
 import japgolly.scalajs.react.extra.router.RouterCtl
-import utils.CBT._
 
 object SignInPage {
 
@@ -28,14 +27,12 @@ object SignInPage {
         <.button(
           "go",
           ^.onClick --> AuthDal
-            .signIn(SignInData(state.email, state.pass))
-            .map { e =>
-              e.fold(
+            .signIn(SignInData(state.email, state.pass)) {
+              _.fold(
                 err => Callback(println("FAIL:" + err)),
                 user => p.onSignIn(user) >> p.rctl.set(HomeLoc)
               )
             }
-            .callback
         )
       )
     }

@@ -1,62 +1,54 @@
 package http
 
+import java.nio.ByteBuffer
+
 import cats.syntax.either._
 import io.circe.parser.parse
 import io.circe.syntax._
 import io.circe.{Decoder, Encoder}
-import org.scalajs.dom
+import japgolly.scalajs.react.Callback
 import org.scalajs.dom.XMLHttpRequest
-import org.scalajs.dom.ext.{Ajax, AjaxException}
-import org.scalajs.dom.window.localStorage
 
-import scala.concurrent.{ExecutionContext, Future}
 import scala.reflect.ClassTag
+import japgolly.scalajs.react.extra.Ajax
+import org.scalajs.dom.ext.Ajax.InputData
 
+import scala.scalajs.js
 object httpClient {
-
-  val headers: Map[String, String] =
-    Map("Content-Type" -> "application/json")
-
-  def foldResp[R](response: Future[XMLHttpRequest])(onSucc: XMLHttpRequest => R, onFail: XMLHttpRequest => R)(
-      implicit ec: ExecutionContext): Future[R] = {
-    //throws on all non-200 codes
-    response.map(onSucc).recover { case e @ AjaxException(req) => onFail(req) }
-  }
-
-  def parserResponse[O: Decoder: ClassTag](response: XMLHttpRequest): O =
-    //it is an unexpected situation if json that we get from server is not parsable/deserializable to expected type
-    //the type O serves as a part of protocol between client ans server and we should fail fast is the protocol is broken
-    parse(response.responseText)
-      .flatMap(_.as[O])
-      .valueOr(
-        err =>
-          throw new Exception(
-            s"Unable to deserialize ${implicitly[ClassTag[O]]} from server." +
-              s"Server responded with: Code: ${response.status}, Data: ${response.responseText}, Error: $err"
-        ))
 
   case class HttpError(code: Int, msg: String)
 
-  def forFuture[O: Decoder: ClassTag](request: Future[XMLHttpRequest])(
-      implicit ec: ExecutionContext): Future[Either[HttpError, O]] = {
-    foldResp(request)(r => Right(parserResponse(r)), r => Left(HttpError(r.status, r.responseText)))
-  }
+  private def parseResp[O: Decoder: ClassTag](r: XMLHttpRequest): Either[HttpError, O] =
+    Either.cond(r.status >= 200 && r.status< 300,
+        //it is an unexpected situation if json that we get from server is not parsable/deserializable to expected type
+        //the type O serves as a part of protocol between client ans server and we should fail fast is the protocol is broken
+        parse(r.responseText)
+          .flatMap(_.as[O])
+          .valueOr(
+            err =>
+              throw new Exception(
+                s"Unable to deserialize ${implicitly[ClassTag[O]]} from server." +
+                  s"Server responded with: Code: ${r.status}, Data: ${r.responseText}, Error: $err"
+              ))
+      ,
+      HttpError(r.status, r.responseText)
+    )
 
-  object methods {
+    type OnComplete[O] = (Either[HttpError, O] => Callback) => Callback
 
-    import utils.CBT.executionContext
+    private def x[O: Decoder: ClassTag](s2: Ajax.Step2): OnComplete[O]=
+      onComplete => s2.onComplete(v => onComplete(parseResp(v))).asCallback
 
-    def post[I: Encoder, O: Decoder: ClassTag](url: String, request: I): Future[Either[HttpError, O]] =
-      forFuture(Ajax.post(url = url, data = request.asJson.noSpaces, headers = headers))
 
-    def post[O: Decoder: ClassTag](url: String): Future[Either[HttpError, O]] =
-      forFuture(Ajax.post(url = url, headers = headers))
+    def post[I: Encoder, O: Decoder: ClassTag](url: String, request: I): OnComplete[O] = {
+      x(Ajax.post(url).setRequestContentTypeJson.send(InputData.str2ajax(request.asJson.noSpaces)))
+    }
 
-    def get[O: Decoder: ClassTag](url: String): Future[Either[HttpError, O]] =
-      forFuture(Ajax.get(url = url, headers = headers))
+    def get[O: Decoder: ClassTag](url: String): OnComplete[O] =
+      x(Ajax.get(url).send)
 
-    def put[I: Encoder, O: Decoder: ClassTag](url: String, request: I): Future[Either[HttpError, O]] =
-      forFuture(Ajax.put(url = url, data = request.asJson.noSpaces, headers = headers))
-  }
+    def put[I: Encoder, O: Decoder: ClassTag](url: String, request: I): OnComplete[O] =
+      x(Ajax("PUT", url).setRequestContentTypeJson.send(request.asJson.noSpaces))
+
 
 }

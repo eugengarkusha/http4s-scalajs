@@ -9,10 +9,6 @@ addSbtPlugin("org.scala-js" % "sbt-scalajs" % "0.6.22")
 
 addSbtPlugin("com.vmunier" % "sbt-web-scalajs" % "1.0.7")
 
-addSbtPlugin("com.typesafe.sbteclipse" % "sbteclipse-plugin" % "5.2.2")
-
-addSbtPlugin("com.typesafe.sbt" % "sbt-twirl" % "1.3.15")
-
 //formatting plugin (config at .scalafmt.conf)
 addSbtPlugin("com.geirsson" % "sbt-scalafmt" % "1.4.0")
 

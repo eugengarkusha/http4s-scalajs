@@ -1,13 +1,10 @@
 package components
 
-import java.time.Instant
-
 import auth.dto.User
 import dal.TestDal
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.vdom.html_<^._
 import japgolly.scalajs.react.extra._
-import utils.CBT._
 
 object TestPage {
 
@@ -24,12 +21,11 @@ object TestPage {
       <.div(
         <.div(s"Welcome, ${p.user.name} !"),
         <.div(s"expect to return Unauthorized when authenticator expires"),
-        <.button("click me",
-                 ^.onClick --> TestDal.test
-                   .map(v => {
-                     $.modState(_.copy(response = v.fold(_.toString, identity)))
-                   })
-                   .callback),
+        <.button(
+          "click me",
+          ^.onClick -->
+            TestDal.test(v =>
+              $.modState(_.copy(response = v.fold(_.toString, identity))))),
         <.span(s"server response:  ${s.response}")
       )
   }

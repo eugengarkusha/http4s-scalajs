@@ -96,9 +96,8 @@ lazy val server = (project in file("server"))
       "org.reactormonk" %% "cryptobits" % "1.1"
     ) ++ Dependencies.tsecAll,
     WebKeys.packagePrefix in Assets := "public/",
-    managedClasspath in Runtime += (packageBin in Assets).value,
+    managedClasspath in Runtime += (packageBin in Assets).value
     // Compile the project before generating Eclipse files, so that generated .scala or .class files for Twirl templates are present
-    EclipseKeys.preTasks := Seq(compile in Compile)
   )
   .dependsOn(sharedJvm)
 

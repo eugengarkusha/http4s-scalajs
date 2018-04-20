@@ -13,7 +13,7 @@ import scala.concurrent._
 
 class BootStrapService[F[_]](implicit F: Effect[F], m: InvariantMonoidal[F]) extends Http4sDsl[F] {
 
-  def bootStrap(): F[Response[F]] = {
+  private def bootStrap(): F[Response[F]] = {
 
     def pathToBundleAsset(projectName: String): Either[String, String] = {
       val name = projectName.toLowerCase

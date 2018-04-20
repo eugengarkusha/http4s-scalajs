@@ -21,11 +21,10 @@ object TestPage {
       <.div(
         <.div(s"Welcome, ${p.user.name} !"),
         <.div(s"expect to return Unauthorized when authenticator expires"),
-        <.button(
-          "click me",
-          ^.onClick -->
-            TestDal.test(v =>
-              $.modState(_.copy(response = v.fold(_.toString, identity))))),
+        <.button("click me",
+                 ^.onClick -->
+                   //usig dal directly(its a test page, dont care)
+                   TestDal.test(v => $.modState(_.copy(response = v.fold(_.toString, identity))))),
         <.span(s"server response:  ${s.response}")
       )
   }

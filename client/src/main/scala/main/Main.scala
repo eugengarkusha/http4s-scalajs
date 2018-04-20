@@ -1,7 +1,9 @@
 package main
 
-import auth.dto.User
+import auth.dto.{SignInData, User}
 import components._
+import dal.AuthDal
+import http.httpClient.HttpError
 import japgolly.scalajs.react.{Callback, CallbackTo}
 import japgolly.scalajs.react.extra.router.StaticDsl.Route
 import japgolly.scalajs.react.extra.router.{
@@ -14,6 +16,7 @@ import japgolly.scalajs.react.extra.router.{
   StaticDsl
 }
 import org.scalajs.dom
+import misc.SharedVariables._
 
 object UserHolder {
   private var user: Option[User] = None
@@ -33,16 +36,25 @@ object Main extends {
     import dsl._
 
     ///////////////////////////////Tooling////////////////////////////////////////////////////////////////////////////////////
-    def onSignIn(rctrl: RouterCtl[Loc], user: User): Callback = {
-      Callback(setUser(user)) >> rctrl.set(HomeLoc)
-    }
+    def removeCookie() = dom.document.cookie = s"$cookieName=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;"
+    def signIn(rctrl: RouterCtl[Loc]): SignInData => (HttpError => Callback) => Callback =
+      sid => onError => AuthDal.signIn(sid)(_.fold(onError, u => Callback(setUser(u)) >> rctrl.set(HomeLoc)))
+
+    def signOut(rctrl: RouterCtl[Loc]) =
+      AuthDal.signOut(r =>
+        Callback {
+          r.left.map(e => println(s"Trying to sign-out. Server responded with $e. Removing cookie and user data."))
+          removeCookie
+          clearUser
+        } >> rctrl.set(SignInLoc))
 
     def staticApp(route: Route[Unit], loc: AppLoc, user: => User) = {
-      staticRoute(route, loc) ~> renderR(c => AppContainer.Props(user, c.narrow[AppLoc], loc).render)
+      staticRoute(route, loc) ~>
+        renderR(rctl => AppContainer.Props(user, rctl.narrow[AppLoc], loc, signOut(rctl)).render)
     }
 
     def staticAuth(route: Route[Unit], loc: AuthLoc) = {
-      staticRoute(route, loc) ~> renderR(c => AuthContainer.Props(onSignIn(c, _), c.narrow[HomeLoc.type], loc).render)
+      staticRoute(route, loc) ~> renderR(c => AuthContainer.Props(signIn(c), loc).render)
     }
 
     def authrorized(rule: StaticDsl.Rule[Loc]): StaticDsl.Rule[Loc] =
@@ -66,6 +78,6 @@ object Main extends {
   }
 
   def main(args: Array[String]): Unit = {
-    Router(BaseUrl.until_#, routerConfig)().renderIntoDOM(dom.document.getElementById("bootstrap"))
+    Router(BaseUrl.until_#, routerConfig)().renderIntoDOM(dom.document.getElementById(bootstrapId))
   }
 }

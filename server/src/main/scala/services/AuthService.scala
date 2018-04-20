@@ -1,6 +1,6 @@
 package services
 
-import java.time.Instant
+import java.time.{Instant, ZonedDateTime}
 import java.time.temporal.ChronoUnit
 
 import auth.dto.{SignInData, User}
@@ -30,10 +30,11 @@ import cats.syntax.flatMap._
 import cats.syntax.traverse._
 import cats.instances.option._
 import cats.instances.either._
-import tsec.authentication.Authenticator
+import tsec.authentication._
+import cats.syntax.semigroupk._
 
 class AuthService[F[_], A](authentiator: Authenticator[F, User, User, A],
-                           postProcess: (A, Response[F]) => Response[F],
+                           signInResponsePostProcess: (A, Response[F]) => Response[F],
                            findUser: SignInData => F[Option[User]])(
     implicit F: Effect[F],
     m: Monad[F]
@@ -48,10 +49,10 @@ class AuthService[F[_], A](authentiator: Authenticator[F, User, User, A],
     for {
       now <- F.delay(Instant.now())
       authenticator <- authentiator.create(authedUser)
-      r <- Ok(authedUser.asJson).map(postProcess(authenticator, _))
+      r <- Ok(authedUser.asJson).map(signInResponsePostProcess(authenticator, _))
     } yield r
 
-  val service: HttpService[F] = {
+  val signInUpService: HttpService[F] = {
     HttpService {
       //Where user is the case class User above
       case request @ POST -> Root / "api" / "auth" / "sign-in" =>
@@ -65,4 +66,17 @@ class AuthService[F[_], A](authentiator: Authenticator[F, User, User, A],
         } yield r
     }
   }
+
+  val Auth: SecuredRequestHandler[F, User, User, A] = SecuredRequestHandler(authentiator)
+
+  val signOutService: HttpService[F] = Auth.liftService(
+    TSecAuthService {
+      //Where user is the case class User above
+      case request @ POST -> Root / "api" / "auth" / "sign-out" asAuthed user =>
+        authentiator.discard(request.authenticator).>>(Ok())
+    }
+  )
+
+  //TODO: Investigte bug with the order of service composition
+//  val service =  signInUpService <+> signOutService
 }

@@ -7,6 +7,7 @@ import org.http4s._
 import org.http4s.dsl.Http4sDsl
 import org.http4s.headers._
 import scalatags.Text.all._
+import misc.SharedVariables.bootstrapId
 
 import scala.concurrent._
 
@@ -32,7 +33,7 @@ class BootStrapService[F[_]](implicit F: Effect[F], m: InvariantMonoidal[F]) ext
               title := "http4s-scalajs"
             ),
             body(
-              div(id := "bootstrap"),
+              div(id := bootstrapId),
               script(src := path)
             )
           ).render,

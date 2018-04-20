@@ -62,14 +62,17 @@ object Dependencies extends DependencyBuilders {
   val `circe-java8` = Def.setting("io.circe" %%% "circe-java8" % Versions.circe)
   val `circe-parser` = Def.setting("io.circe" %%% "circe-parser" % Versions.circe)
 
-  private val sjsreact = "com.github.japgolly.scalajs-react"
+
   // java.time for scalajs
   val `scala-java-time` = Def.setting("io.github.cquiroz" %%% "scala-java-time" % Versions.`scala-java-time`)
+  val `scalajs-dom` = Def.setting("org.scala-js" %%% "scalajs-dom" % Versions.`scalajs-dom`)
+
+  private val sjsreact = "com.github.japgolly.scalajs-react"
   val `scalajs-react-core` = Def.setting(sjsreact %%% "core" % Versions.`scalajs-react`)
   val `scalajs-react-extra` = Def.setting(sjsreact %%% "extra" % Versions.`scalajs-react`)
   val `scalajs-monocle` = Def.setting(sjsreact %%% "ext-monocle-cats" % Versions.`scalajs-react`)
+  val `scalajs-ext-cats` = Def.setting( sjsreact %%% "ext-cats" %  Versions.`scalajs-react`)
   val `scalacss-ext-react` = Def.setting("com.github.japgolly.scalacss" %%% "ext-react" % Versions.scalacss)
-  val `scalajs-dom` = Def.setting("org.scala-js" %%% "scalajs-dom" % Versions.`scalajs-dom`)
 
   //compiler plugins
   val `kind-projector` = "org.spire-math" %% "kind-projector" % Versions.`kind-projector`

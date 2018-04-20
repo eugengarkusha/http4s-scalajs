@@ -5,5 +5,6 @@ import http.httpClient._
 import io.circe.syntax._
 
 object AuthDal {
-  def signIn(data: SignInData): OnComplete[User] = post("/api/auth/sign-in",  data)
+  def signIn(data: SignInData): OnComplete[User] = post("/api/auth/sign-in", data)
+  def signOut: OnComplete[Unit] = post("/api/auth/sign-out")
 }

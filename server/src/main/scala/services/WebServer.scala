@@ -12,6 +12,7 @@ import org.http4s._
 import org.http4s.server.blaze.BlazeBuilder
 import cats.syntax.semigroupk._
 import org.http4s.headers.Authorization
+import misc.SharedVariables.cookieName
 import tsec.authentication.{
   AugmentedJWT,
   AuthenticatedCookie,
@@ -37,7 +38,7 @@ object WebServer extends App {
   // Reason: http://cryto.net/~joepie91/blog/2016/06/13/stop-using-jwt-for-sessions/
 
   val settings: TSecCookieSettings = TSecCookieSettings(
-    cookieName = "app-auth",
+    cookieName = cookieName,
     //https://en.wikipedia.org/wiki/Secure_cookies
     secure = false,
     expiryDuration = 20.seconds, // Absolute expiration time
@@ -79,17 +80,18 @@ object WebServer extends App {
 //////////////////////////////////////Instantiating services//////////////////////////////////////////////////////////
   val bootstrapService: HttpService[IO] = new BootStrapService[IO].service
 
-  val authService: HttpService[IO] =
+  val authService =
     new AuthService[IO, AuthenticatedCookie[HMACSHA256, User]](
       cookieAuth, //ashes to ashes cookie.toCookie
       (cookie, resp) => resp.addCookie(cookie.toCookie),
       sd => IO.pure(Some(User(1L, "dummyuser")))
-    ).service
+    )
 
   val authedService: HttpService[IO] =
     new AuthedTestService[IO, AuthenticatedCookie[HMACSHA256, User]](cookieAuth).service
 
-  val allServices: HttpService[IO] = bootstrapService <+> authService <+> authedService
+  val allServices
+    : HttpService[IO] = bootstrapService <+> authService.signInUpService <+> authedService <+> authService.signOutService
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////Start server////////////////////////////////////////////////////////////////////////

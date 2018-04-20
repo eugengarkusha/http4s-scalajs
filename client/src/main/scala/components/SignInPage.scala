@@ -1,15 +1,15 @@
 package components
 
-import auth.dto.{SignInData, User}
-import dal.AuthDal
+import auth.dto.SignInData
+import http.httpClient.HttpError
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.vdom.html_<^._
 import japgolly.scalajs.react.extra._
-import japgolly.scalajs.react.extra.router.RouterCtl
+import cats.syntax.foldable._
 
 object SignInPage {
 
-  case class Props(onSignIn: User => Callback, rctl: RouterCtl[HomeLoc.type], sh: StateSnapshot[State]) {
+  case class Props(signIn: SignInData => Callback, sh: StateSnapshot[State]) {
     @inline def render: VdomElement = Component(this)
   }
 
@@ -24,16 +24,7 @@ object SignInPage {
       <.div(
         <.input.text(^.onChange ==> ((e: ReactEventFromInput) => setState(state.copy(email = e.target.value)))),
         <.input.text(^.onChange ==> ((e: ReactEventFromInput) => setState(state.copy(pass = e.target.value)))),
-        <.button(
-          "go",
-          ^.onClick --> AuthDal
-            .signIn(SignInData(state.email, state.pass)) {
-              _.fold(
-                err => Callback(println("FAIL:" + err)),
-                user => p.onSignIn(user) >> p.rctl.set(HomeLoc)
-              )
-            }
-        )
+        <.button("go", ^.onClick --> p.signIn(SignInData(state.email, state.pass)))
       )
     }
   }

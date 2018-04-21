@@ -1,12 +1,16 @@
 package components
 
+import java.util.UUID
+
 sealed trait Loc
 
 sealed trait AuthLoc extends Loc
 
 sealed trait AppLoc extends Loc
 
-case object SignInLoc extends AuthLoc
+case class SignInLoc(activationId: Option[UUID] = None) extends AuthLoc
+
+case object SignUpLoc extends AuthLoc
 
 case object HomeLoc extends AppLoc
 

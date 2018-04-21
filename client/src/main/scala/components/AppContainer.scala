@@ -1,6 +1,6 @@
 package components
 
-import auth.dto.User
+import auth.dto.UserInfo
 import japgolly.scalajs.react.{CtorType, _}
 import japgolly.scalajs.react.component.Scala.Component
 import japgolly.scalajs.react.vdom.html_<^._
@@ -14,7 +14,7 @@ object AppContainer {
   @Lenses
   case class State(testState: TestPage.State)
 
-  case class Props(user: User, rctl: RouterCtl[AppLoc], currentLoc: AppLoc, signOut: Callback) {
+  case class Props(user: UserInfo, rctl: RouterCtl[AppLoc], currentLoc: AppLoc, signOut: Callback) {
     @inline def render: VdomElement = Component(this)
   }
 

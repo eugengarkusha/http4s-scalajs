@@ -1,6 +1,6 @@
 package components
 
-import auth.dto.User
+import auth.dto.UserInfo
 import dal.TestDal
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.vdom.html_<^._
@@ -8,7 +8,7 @@ import japgolly.scalajs.react.extra._
 
 object TestPage {
 
-  case class Props(user: User, sh: StateSnapshot[State]) {
+  case class Props(user: UserInfo, sh: StateSnapshot[State]) {
     @inline def render: VdomElement = Component(this)
   }
 
@@ -19,7 +19,7 @@ object TestPage {
   final class Backend($ : BackendScope[Props, State]) {
     def render(p: Props, s: State): VdomElement =
       <.div(
-        <.div(s"Welcome, ${p.user.name} !"),
+        <.div(s"Welcome, ${p.user.displayName} !"),
         <.div(s"expect to return Unauthorized when authenticator expires"),
         <.button("click me",
                  ^.onClick -->

@@ -37,22 +37,15 @@ object httpClient {
 
   type OnComplete[O] = (Either[HttpError, O] => Callback) => Callback
 
-  private def withResponse[O: Decoder: ClassTag](s2: Ajax.Step2): OnComplete[O] =
-    onComplete => s2.onComplete(v => onComplete(validateResp(v).map(parseUnsafe(_)))).asCallback
+  def transform[A, B](oca: OnComplete[A])(f: A => B): OnComplete[B] = ocbf => oca(res => ocbf(res.map(f)))
 
-  private def noResponse(s2: Ajax.Step2): OnComplete[Unit] =
-    onComplete => s2.onComplete(v => onComplete(validateResp(v).map(_ => ()))).asCallback
+  def withResponse(s2: Ajax.Step2): OnComplete[XMLHttpRequest] =
+    onComplete => s2.onComplete(v => onComplete(validateResp(v))).asCallback
 
-  def post[I: Encoder, O: Decoder: ClassTag](url: String, request: I): OnComplete[O] =
-    withResponse(Ajax.post(url).setRequestContentTypeJson.send(request.asJson.noSpaces))
+  def jsonResponse[O: Decoder: ClassTag](s2: Ajax.Step2): OnComplete[O] =
+    transform(withResponse(s2))(parseUnsafe(_))
 
-  def post(url: String): OnComplete[Unit] =
-    noResponse(Ajax.post(url).send)
-
-  def get[O: Decoder: ClassTag](url: String): OnComplete[O] =
-    withResponse(Ajax.get(url).send)
-
-  def put[I: Encoder, O: Decoder: ClassTag](url: String, request: I): OnComplete[O] =
-    withResponse(Ajax("PUT", url).setRequestContentTypeJson.send(request.asJson.noSpaces))
+  def noResponse(s2: Ajax.Step2): OnComplete[Unit] =
+    transform(withResponse(s2))(_ => ())
 
 }

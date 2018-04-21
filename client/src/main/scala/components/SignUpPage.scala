@@ -1,16 +1,14 @@
 package components
 
-import java.util.UUID
-
 import auth.dto.SignInUpData
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.vdom.html_<^._
 import japgolly.scalajs.react.extra._
 import japgolly.scalajs.react.extra.router.RouterCtl
 
-object SignInPage {
+object SignUpPage {
 
-  case class Props(signIn: SignInUpData => Callback, sh: StateSnapshot[State], rctl: RouterCtl[AuthLoc]) {
+  case class Props(signUp: SignInUpData => Callback, sh: StateSnapshot[State], rctl: RouterCtl[AuthLoc]) {
     @inline def render: VdomElement = Component(this)
   }
 
@@ -23,18 +21,17 @@ object SignInPage {
       import p.sh.setState
 
       <.div(
-        <.div("Sign in"),
-        <.div("Dummy user login : a, pass: b"),
+        <.div("Sign up"),
         <.input.text(^.onChange ==> ((e: ReactEventFromInput) => setState(state.copy(email = e.target.value)))),
         <.input.text(^.onChange ==> ((e: ReactEventFromInput) => setState(state.copy(pass = e.target.value)))),
-        <.button("go", ^.onClick --> p.signIn(SignInUpData(state.email, state.pass))),
-        <.button("sign-up", ^.onClick --> p.rctl.set(SignUpLoc))
+        <.button("go", ^.onClick --> p.signUp(SignInUpData(state.email, state.pass))),
+        <.button("sign-in", ^.onClick --> p.rctl.set(SignInLoc(None)))
       )
     }
   }
 
   val Component = ScalaComponent
-    .builder[Props]("SignInPage")
+    .builder[Props]("SignUpPage")
     .renderBackend[Backend]
     .build
 }

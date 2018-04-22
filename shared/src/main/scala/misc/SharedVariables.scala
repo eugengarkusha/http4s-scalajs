@@ -6,6 +6,6 @@ object SharedVariables {
   val uuidUrlParamKey = "uuid"
 }
 
-object SharedAliases{
+object SharedAliases {
   type Email = String
 }

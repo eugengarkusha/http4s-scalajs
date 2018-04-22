@@ -2,6 +2,8 @@ package main
 
 import auth.dto.{SignInUpData, UserInfo}
 import components._
+import components.app.AppContainer
+import components.auth.AuthContainer
 import dal.AuthDal
 import http.httpClient.HttpError
 import japgolly.scalajs.react.{Callback, CallbackTo}
@@ -46,13 +48,13 @@ object Main extends {
     def signOut(rctrl: RouterCtl[Loc]): Callback =
       AuthDal.signOut(
         r =>
-          Callback(
+          Callback {
             r.left.foreach(e =>
               println(s"Trying to sign-out. Server responded with $e. Removing cookie and user data."))
-          ) >>
-            Callback(clearUser) >>
-            rctrl.set(SignInLoc()) >>
-            Callback(removeCookie))
+            removeCookie
+            clearUser
+          } >> rctrl.set(SignInLoc())
+      )
 
     def staticApp(route: Route[Unit], loc: AppLoc, user: => UserInfo) =
       staticRoute(route, loc) ~>

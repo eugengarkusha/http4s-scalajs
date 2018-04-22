@@ -1,10 +1,10 @@
-package components
+package components.app
 
 import auth.dto.UserInfo
 import dal.TestDal
 import japgolly.scalajs.react._
-import japgolly.scalajs.react.vdom.html_<^._
 import japgolly.scalajs.react.extra._
+import japgolly.scalajs.react.vdom.html_<^._
 
 object TestPage {
 

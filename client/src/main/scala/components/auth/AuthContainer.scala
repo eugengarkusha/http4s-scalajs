@@ -1,19 +1,18 @@
-package components
+package components.auth
 
-import auth.dto.{SignInUpData, UserInfo}
+import auth.dto.SignInUpData
+import cats.instances.option._
+import cats.syntax.foldable._
 import http.httpClient.{HttpError, OnComplete}
-import japgolly.scalajs.react.Callback
-import japgolly.scalajs.react.vdom.html_<^._
+import japgolly.scalajs.react.MonocleReact._
+import japgolly.scalajs.react.{Callback, _}
+import japgolly.scalajs.react.component.builder.Lifecycle.StateRW
 import japgolly.scalajs.react.extra._
 import japgolly.scalajs.react.extra.router.RouterCtl
-import monocle.macros._
-import japgolly.scalajs.react.MonocleReact._
-import japgolly.scalajs.react._
-import japgolly.scalajs.react.component.builder.Lifecycle.StateRW
-import japgolly.scalajs.react.CatsReact._
-import cats.syntax.foldable._
-import cats.instances.option._
+import japgolly.scalajs.react.vdom.html_<^._
 import misc.SharedAliases.Email
+import _root_.components._
+import monocle.macros._
 import utils.Instances.cbMonoid
 
 object AuthContainer {
@@ -43,7 +42,8 @@ object AuthContainer {
     runActivation(
       _.fold[Callback](
         err => addAllert(err),
-        email => $.modState(s => State.signInState.modify(_.copy(email = email))(s), Callback.empty)
+        email =>
+          $.setState($.state.copy(signInState = $.state.signInState.copy(email = email))) //$.modStateL(State.signInState)(_.copy(email = email))
       )
     )
 

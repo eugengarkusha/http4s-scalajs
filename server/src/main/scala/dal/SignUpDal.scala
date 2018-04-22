@@ -24,10 +24,11 @@ class SignUpDal[F[_]](implicit F: Effect[F]) {
   def get(id: UUID): F[Option[SignUpRecord]] = F.delay(cache.get(id))
   def delete(id: UUID): F[Unit] = F.delay(cache.remove(id))
 
-  def deleteOlderThan(d: FiniteDuration): F[Unit] =
+  def deleteOlderThan(d: FiniteDuration): F[List[SignUpRecord]] =
     for {
       t <- F.delay(Instant.now().minusSeconds(d.toSeconds))
-      _ <- F.delay(cache.foreach { case (id, sr) => if (sr.created.isBefore(t)) cache.remove(id) })
-    } yield ()
+      r <- F.delay(cache.flatMap { case (id, sr) => if (sr.created.isBefore(t)) cache.remove(id) else None }(
+        collection.breakOut): List[SignUpRecord])
+    } yield r
 
 }

@@ -20,6 +20,7 @@ import utils.Instances.uuidParamDecoder
 import misc.SharedVariables.uuidUrlParamKey
 import misc.SharedAliases.Email
 import services.AuthServices.ActivationPath
+import EitherT.liftF
 
 object AuthServices {
   type ActivationPath = Uri
@@ -66,7 +67,7 @@ class AuthServices[F[_], A](authentiator: Authenticator[F, UserInfo, UserInfo, A
         for {
           sd <- request.as[SignInUpData]
           exists <- userDal.exists(sd.email)
-          res <- if (exists) Conflict(s"User ${sd.email} already exists")
+          res <- if (exists) Conflict()
           else
             for {
               uuid <- signUpDal.create(sd.email, sd.passwordHash)
@@ -79,11 +80,12 @@ class AuthServices[F[_], A](authentiator: Authenticator[F, UserInfo, UserInfo, A
       case request @ POST -> Root / "api" / "auth" / "activation" :? UuidVal(uuid) =>
         val res: EitherT[F, Response[F], Response[F]] = for {
           sd <- EitherT(signUpDal.get(uuid).map(_.toRight(Response[F](NotFound))))
-          a <- EitherT(userDal.exists(sd.email).map(v => Either.cond(!v, (), Response[F](Conflict))))
-          v <- EitherT.liftF(signUpDal.delete(uuid))
+          _ <- EitherT(userDal.exists(sd.email).map(v => Either.cond(!v, (), Response[F](Conflict))))
+          _ <- liftF(signUpDal.delete(uuid))
           // user will fill in name using profile editing view after registration
-          c <- EitherT.liftF(userDal.create(UserRecord("", sd.email, sd.passwordHash)))
-        } yield Response[F](Ok.withReason(sd.email))
+          _ <- liftF(userDal.create(UserRecord("", sd.email, sd.passwordHash)))
+          ok <- liftF(Ok(sd.email))
+        } yield ok
 
         res.merge
     }

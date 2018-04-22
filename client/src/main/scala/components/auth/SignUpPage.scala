@@ -1,10 +1,11 @@
-package components
+package components.auth
 
 import auth.dto.SignInUpData
 import japgolly.scalajs.react._
-import japgolly.scalajs.react.vdom.html_<^._
 import japgolly.scalajs.react.extra._
 import japgolly.scalajs.react.extra.router.RouterCtl
+import japgolly.scalajs.react.vdom.html_<^._
+import _root_.components.{SignInLoc, AuthLoc}
 
 object SignUpPage {
 

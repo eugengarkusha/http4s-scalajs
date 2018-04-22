@@ -23,6 +23,8 @@ import tsec.authentication.{
   TSecAuthService,
   TSecCookieSettings
 }
+import cats.syntax.list._
+import cats.instances.option._
 import tsec.mac.jca.HMACSHA256
 
 import scala.collection.concurrent.TrieMap
@@ -34,20 +36,29 @@ object WebServer extends App {
   private val key = HMACSHA256.unsafeGenerateKey
   implicit val scheduler = Scheduler.fromScheduledExecutorService(new ScheduledThreadPoolExecutor(2))
 
-  import cats.syntax.applicativeError._
   //TODO: Inject
   val usrDal = new UserDal[IO]()
   val signUpDal = new SignUpDal[IO]()
 
   //Cleaning up expired sign up requests
   //TODO: make expiration time configurable
-  scheduler
-    .fixedRate[IO](1.minute)
-    .>>(Stream.eval(signUpDal.deleteOlderThan(1.minute)))
-    .compile
-    .last
-    .unsafeRunAsync(_.fold(err => println(s"failed to clean up sign-up  records: $err"),
-                           _ => println(s"sucessfullu cleaned up sign-up  records at ${Instant.now}")))
+  val signUpExpirationWorker: Stream[IO, Unit] = scheduler
+    .fixedRate[IO](1.day)
+    .>>(Stream.eval(signUpDal.deleteOlderThan(1.day)))
+    .flatMap(
+      v =>
+        Stream.eval(
+          IO(
+            println(s"[${Instant.now}] " +
+              v.toNel
+                .fold(s"no expierd sign-up records to remove")(removed =>
+                  s"[${Instant.now}] sucessfully removed expierd sign-up records: " +
+                    s"${removed.map(_.email).toList.mkString(",")}")))))
+    .handleErrorWith { t =>
+      println(s"failed to remove expired sign-up records: $t"); signUpExpirationWorker
+    }
+
+  signUpExpirationWorker.compile.last.unsafeRunAsync(_ => ())
 
 /////// Setting up the authenticator////////////////////////////////////////////////////////////////////////////////
 
@@ -59,7 +70,7 @@ object WebServer extends App {
       cookieName = cookieName,
       //https://en.wikipedia.org/wiki/Secure_cookies
       secure = false,
-      expiryDuration = 20.seconds, // Absolute expiration time
+      expiryDuration = 200.seconds, // Absolute expiration time
       maxIdle = None, // Rolling window expiration. Makes expiration time refresh after each sucessfull request
       path = Some("/")
     )

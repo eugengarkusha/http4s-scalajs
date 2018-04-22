@@ -1,13 +1,13 @@
-package components
+package components.app
 
 import auth.dto.UserInfo
-import japgolly.scalajs.react.{CtorType, _}
-import japgolly.scalajs.react.component.Scala.Component
-import japgolly.scalajs.react.vdom.html_<^._
+import japgolly.scalajs.react.MonocleReact._
+import japgolly.scalajs.react._
 import japgolly.scalajs.react.extra._
 import japgolly.scalajs.react.extra.router.RouterCtl
+import japgolly.scalajs.react.vdom.html_<^._
 import monocle.macros._
-import japgolly.scalajs.react.MonocleReact._
+import _root_.components._
 
 object AppContainer {
 

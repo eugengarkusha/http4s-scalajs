@@ -24,10 +24,12 @@ object SignInPage {
       <.div(
         <.div("Sign in"),
         <.div("Dummy user login : a, pass: b"),
-        <.input.text(^.onChange ==> ((e: ReactEventFromInput) => setState(state.copy(email = e.target.value)))),
-        <.input.text(^.onChange ==> ((e: ReactEventFromInput) => setState(state.copy(pass = e.target.value)))),
-        <.button("go", ^.onClick --> p.signIn(SignInUpData(state.email, state.pass))),
-        <.button("sign-up", ^.onClick --> p.rctl.set(SignUpLoc))
+        <.input.text(^.value := state.email,
+                     ^.onChange ==> ((e: ReactEventFromInput) => setState(state.copy(email = e.target.value)))),
+        <.input.text(^.value := state.pass,
+                     ^.onChange ==> ((e: ReactEventFromInput) => setState(state.copy(pass = e.target.value)))),
+        <.button("go", ^.onClick --> p.signIn(SignInUpData(state.email, state.pass)).>>(setState(emptyState))),
+        <.button("sign-up", ^.onClick --> p.rctl.set(SignUpLoc).>>(setState(emptyState)))
       )
     }
   }

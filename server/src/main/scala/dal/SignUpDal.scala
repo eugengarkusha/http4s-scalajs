@@ -10,7 +10,7 @@ import scala.concurrent.duration.FiniteDuration
 import cats.syntax.flatMap._
 import cats.syntax.functor._
 
-case class SignUpRecord(id: UUID, email: String, passwordHash: String, created: Instant = Instant.now())
+case class SignUpRecord(id: UUID, email: String, password: String, created: Instant = Instant.now())
 
 class SignUpDal[F[_]](implicit F: Effect[F]) {
   // TODO: Imlement with DB

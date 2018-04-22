@@ -37,13 +37,12 @@ object AuthContainer {
   }
   // Calling activation api from within the app to be able to provide different notifications to the user depending in status
   // (alternative without notifications : activation url points to  server side api that does activation and redirects to sign in)
-  //TODO: rewrite with backend and remove setuseremail param
+  //TODO: rewrite with backend and remove $ param
   def processActivation(runActivation: OnComplete[Email], $ : StateRW[Props, State, Unit]): Callback =
     runActivation(
       _.fold[Callback](
         err => addAllert(err),
-        email =>
-          $.setState($.state.copy(signInState = $.state.signInState.copy(email = email))) //$.modStateL(State.signInState)(_.copy(email = email))
+        email => $.modStateL(State.signInState)(_.copy(email = email))
       )
     )
 

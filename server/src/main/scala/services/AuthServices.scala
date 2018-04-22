@@ -56,7 +56,7 @@ class AuthServices[F[_], A](authentiator: Authenticator[F, UserInfo, UserInfo, A
         for {
           //check what statius does it retun if ecoding fails. (in case of 500 use attemptAs)
           sd <- request.as[SignInUpData]
-          usrOpt <- userDal.verifyUser(sd.email, sd.passwordHash)
+          usrOpt <- userDal.verifyUser(sd.email, sd.password)
           r <- usrOpt
             .map(usr => signInResponse(UserInfo(usr.name, usr.email)))
             .getOrElse(m.point(Response[F](Unauthorized)))
@@ -70,7 +70,7 @@ class AuthServices[F[_], A](authentiator: Authenticator[F, UserInfo, UserInfo, A
           res <- if (exists) Conflict()
           else
             for {
-              uuid <- signUpDal.create(sd.email, sd.passwordHash)
+              uuid <- signUpDal.create(sd.email, sd.password)
               _ <- sendActivationEmail(sd.email, Uri(path = s"#sign-in/$uuid"))
             } yield Response[F](Ok)
         } yield res
@@ -83,7 +83,7 @@ class AuthServices[F[_], A](authentiator: Authenticator[F, UserInfo, UserInfo, A
           _ <- EitherT(userDal.exists(sd.email).map(v => Either.cond(!v, (), Response[F](Conflict))))
           _ <- liftF(signUpDal.delete(uuid))
           // user will fill in name using profile editing view after registration
-          _ <- liftF(userDal.create(UserRecord("", sd.email, sd.passwordHash)))
+          _ <- liftF(userDal.create(UserRecord("", sd.email, sd.password)))
           ok <- liftF(Ok(sd.email))
         } yield ok
 

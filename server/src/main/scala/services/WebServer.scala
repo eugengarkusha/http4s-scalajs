@@ -12,7 +12,7 @@ import fs2.Stream.ToEffect
 import org.http4s._
 import org.http4s.server.blaze.BlazeBuilder
 import cats.syntax.semigroupk._
-import dal.{SignUpDal, UserDal}
+import dal.{SignUpDal, SignUpRecord, UserDal}
 import misc.SharedVariables.cookieName
 import tsec.authentication.{
   AuthenticatedCookie,
@@ -42,21 +42,24 @@ object WebServer extends App {
 
   //Cleaning up expired sign up requests
   //TODO: make expiration time configurable
-  val signUpExpirationWorker: Stream[IO, Unit] = scheduler
-    .fixedRate[IO](1.day)
-    .>>(Stream.eval(signUpDal.deleteOlderThan(1.day)))
-    .flatMap(
-      v =>
-        Stream.eval(
-          IO(
-            println(s"[${Instant.now}] " +
-              v.toNel
-                .fold(s"no expierd sign-up records to remove")(removed =>
-                  s"[${Instant.now}] sucessfully removed expierd sign-up records: " +
-                    s"${removed.map(_.email).toList.mkString(",")}")))))
-    .handleErrorWith { t =>
-      println(s"failed to remove expired sign-up records: $t"); signUpExpirationWorker
+  val signUpExpirationWorker: Stream[IO, Unit] = {
+
+    def logRemovedRecords(removed: List[SignUpRecord]) = IO {
+      val msg = removed.toNel.fold(s"no expierd sign-up records to remove")(nel =>
+        s"sucessfully removed expierd sign-up records: ${nel.map(_.email).toList.mkString(",")}")
+
+      println(s"[${Instant.now}] $msg")
     }
+
+    scheduler
+      .fixedRate[IO](1.minute)
+      .>>(Stream.eval(signUpDal.deleteOlderThan(1.minute)))
+      .flatMap(v => Stream.eval(logRemovedRecords(v)))
+      .handleErrorWith { t =>
+        println(s"failed to remove expired sign-up records: $t")
+        signUpExpirationWorker
+      }
+  }
 
   signUpExpirationWorker.compile.last.unsafeRunAsync(_ => ())
 

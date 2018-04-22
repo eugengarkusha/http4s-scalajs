@@ -6,6 +6,7 @@ import japgolly.scalajs.react.extra._
 import japgolly.scalajs.react.extra.router.RouterCtl
 import japgolly.scalajs.react.vdom.html_<^._
 import _root_.components.{SignInLoc, AuthLoc}
+import japgolly.scalajs.react.Callback.alert
 
 object SignUpPage {
 
@@ -23,10 +24,12 @@ object SignUpPage {
 
       <.div(
         <.div("Sign up"),
-        <.input.text(^.onChange ==> ((e: ReactEventFromInput) => setState(state.copy(email = e.target.value)))),
-        <.input.text(^.onChange ==> ((e: ReactEventFromInput) => setState(state.copy(pass = e.target.value)))),
-        <.button("go", ^.onClick --> p.signUp(SignInUpData(state.email, state.pass))),
-        <.button("sign-in", ^.onClick --> p.rctl.set(SignInLoc(None)))
+        <.input.text(^.value := state.email,
+                     ^.onChange ==> ((e: ReactEventFromInput) => setState(state.copy(email = e.target.value)))),
+        <.input.text(^.value := state.pass,
+                     ^.onChange ==> ((e: ReactEventFromInput) => setState(state.copy(pass = e.target.value)))),
+        <.button("go", ^.onClick --> p.signUp(SignInUpData(state.email, state.pass)).>>(setState(emptyState))),
+        <.button("sign-in", ^.onClick --> p.rctl.set(SignInLoc(None)).>>(setState(emptyState)))
       )
     }
   }

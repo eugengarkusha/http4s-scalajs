@@ -6,6 +6,7 @@ import components.app.AppContainer
 import components.auth.AuthContainer
 import dal.AuthDal
 import http.httpClient.HttpError
+import japgolly.scalajs.react.Callback.alert
 import japgolly.scalajs.react.{Callback, CallbackTo}
 import japgolly.scalajs.react.extra.router.StaticDsl.Route
 import japgolly.scalajs.react.extra.router.{
@@ -39,11 +40,20 @@ object Main extends {
 
     ///////////////////////////////Tooling////////////////////////////////////////////////////////////////////////////////////
     def removeCookie() = dom.document.cookie = s"$cookieName=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;"
+
+    //TODO: currentky giving AuthComponent only error handler. Need to full controll over success and err reactions(Either[Err, Unit])
     def signIn(rctrl: RouterCtl[Loc]): SignInUpData => (HttpError => Callback) => Callback =
       sid => onError => AuthDal.signIn(sid)(_.fold(onError, u => Callback(setUser(u)) >> rctrl.set(HomeLoc)))
 
     def signUp(rctrl: RouterCtl[Loc]): SignInUpData => (HttpError => Callback) => Callback =
-      sd => onError => AuthDal.signUp(sd)(_.fold(onError, _ => Callback.empty) >> rctrl.set(SignInLoc()))
+      sd =>
+        onError =>
+          AuthDal.signUp(sd)(
+            _.fold(
+              onError,
+              _ => rctrl.set(SignInLoc()) >> alert("activation link is printed out in server console")
+            )
+      )
 
     def signOut(rctrl: RouterCtl[Loc]): Callback =
       AuthDal.signOut(

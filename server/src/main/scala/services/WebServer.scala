@@ -5,13 +5,10 @@ import java.util.UUID
 import java.util.concurrent.ScheduledThreadPoolExecutor
 
 import auth.dto.UserInfo
-import cats.data.{Kleisli, OptionT}
-import cats.effect.IO
 import fs2._
 import fs2.Stream.ToEffect
 import org.http4s._
 import org.http4s.server.blaze.BlazeBuilder
-import cats.syntax.semigroupk._
 import dal.{SignUpDal, SignUpRecord, UserDal}
 import misc.SharedVariables.cookieName
 import tsec.authentication.{
@@ -23,8 +20,11 @@ import tsec.authentication.{
   TSecAuthService,
   TSecCookieSettings
 }
-import cats.syntax.list._
+import cats.data.{Kleisli, OptionT}
+import cats.effect.IO
 import cats.instances.option._
+import cats.syntax.semigroupk._
+import cats.syntax.list._
 import tsec.mac.jca.HMACSHA256
 
 import scala.collection.concurrent.TrieMap

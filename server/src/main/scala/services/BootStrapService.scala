@@ -13,10 +13,10 @@ class BootStrapService[F[_]](implicit F: Effect[F]) extends Http4sDsl[F] {
 
     def pathToBundleAsset(projectName: String): Either[String, String] = {
       val name = projectName.toLowerCase
-      val bundleNames = Seq(name + "-opt-bundle.js", name + "-fastopt-bundle.js")
-      bundleNames.filter(dn => getClass.getResource("/public/" + dn) != null).map("/assets/" + _) match {
+      val bundleExts = Seq("-opt-bundle.js", "-fastopt-bundle.js").map(name + )
+      bundleExts.filter(dn => getClass.getResource("/public/" + dn) != null).map("/assets/" + _) match {
         case Seq(bundleAssetPath) => Right(bundleAssetPath)
-        case bundleAssetPaths     => Left(s"expected to have excactly one js app asset but got ${bundleAssetPaths}.")
+        case bundleAssetPaths     => Left(s"expected to have exactly one js app asset but got ${bundleAssetPaths}.")
       }
     }
 

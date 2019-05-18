@@ -1,11 +1,12 @@
 import org.scalajs.sbtplugin.impl.DependencyBuilders
+import org.portablescala.sbtplatformdeps.PlatformDepsPlugin.autoImport._
 import sbt._
 
 object Dependencies extends DependencyBuilders {
   type NpmDependency = (String, String)
 
   object Versions {
-    val scala = "2.12.5"
+    val scala = "2.12.8"
     val cats = "0.10"
 
     val http4s = "0.18.7"
@@ -14,10 +15,10 @@ object Dependencies extends DependencyBuilders {
     val scalatest = "3.0.3"
     val circe = "0.9.3"
     val `scala-java-time` = "2.0.0-M12"
-    val `scalajs-react` = "1.2.0"
+    val `scalajs-react` = "1.4.2"
     val scalacss = "0.5.5"
-    val `scalajs-dom` = "0.9.5"
-    val react = "16.0"
+    val `scalajs-dom` = "0.9.7"
+    val react = "16.8"
     val `kind-projector` = "0.9.6"
     val tsec = "0.0.1-M11"
     val monocle = "1.5.1-cats"

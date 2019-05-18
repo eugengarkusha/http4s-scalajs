@@ -1,5 +1,6 @@
 import Dependencies.Versions
 import sbt.addCompilerPlugin
+import sbtcrossproject.CrossPlugin.autoImport.{crossProject, CrossType}
 
 inThisBuild(
   List(
@@ -26,7 +27,7 @@ lazy val compilerPlugins = Seq(
   addCompilerPlugin(Dependencies.paradise cross CrossVersion.full)
 )
 
-lazy val shared = (crossProject.crossType(CrossType.Pure) in file("shared"))
+lazy val shared = (crossProject(JSPlatform, JVMPlatform).crossType(CrossType.Pure) in file("shared"))
   .settings(
     libraryDependencies ++= Seq(
       Dependencies.`circe-generic`.value,

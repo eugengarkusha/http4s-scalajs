@@ -89,6 +89,7 @@ lazy val server = (project in file("server"))
     compile in Compile := ((compile in Compile) dependsOn scalaJSPipeline).value,
     libraryDependencies ++= Seq(
       Dependencies.zio.value,
+      Dependencies.`zio-cats`.value,
       Dependencies.`circe-generic`.value,
       Dependencies.`circe-java8`.value,
       Dependencies.`http4s-core`,

@@ -6,12 +6,15 @@ import org.http4s.dsl.Http4sDsl
 import org.http4s.headers._
 import scalatags.Text.all._
 import misc.SharedVariables.bootstrapId
+import scalaz.zio.Task
+import cats.implicits._
+import scalaz.zio.interop.catz._
 
 import scala.concurrent.ExecutionContext
 
-class BootStrapService[F[_]](blockingEc: ExecutionContext)(implicit F: Effect[F], cs: ContextShift[F]) extends Http4sDsl[F] {
+object BootStrapService extends Http4sDsl[Task] {
 
-  private def bootStrap(): F[Response[F]] = {
+  private def bootStrap(): Task[Response[Task]] = {
 
     def pathToBundleAssetName(projectName: String): Either[String, String] = {
       val name = projectName.toLowerCase
@@ -41,8 +44,8 @@ class BootStrapService[F[_]](blockingEc: ExecutionContext)(implicit F: Effect[F]
   }
 
 
-  def service: HttpRoutes[F] =
-    HttpRoutes.of[F] {
+  def apply(blockingEc: ExecutionContext) : HttpRoutes[Task] =
+    HttpRoutes.of[Task] {
       case GET -> Root => bootStrap()
 
       case req@GET -> Root / "assets" / name =>

@@ -58,6 +58,7 @@ object Dependencies extends DependencyBuilders {
   val `cats-effect` = Def.setting("org.typelevel" %%% "cats-effect" % Versions.cats)
   val `cats-core` = Def.setting("org.typelevel" %%% "cats-core" % Versions.cats)
   val zio = Def.setting("org.scalaz" %%% "scalaz-zio" % Versions.zio)
+  val `zio-cats` = Def.setting("org.scalaz" %%% "scalaz-zio-interop-cats" % Versions.zio)
   val scalatest = Def.setting("org.scalatest" %% "scalatest" % Versions.scalatest)
   val `circe-generic` = Def.setting("io.circe" %%% "circe-generic" % Versions.circe)
   val `circe-java8` = Def.setting("io.circe" %%% "circe-java8" % Versions.circe)

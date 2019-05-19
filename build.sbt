@@ -88,6 +88,7 @@ lazy val server = (project in file("server"))
     // triggers scalaJSPipeline when using compile or continuous compilation
     compile in Compile := ((compile in Compile) dependsOn scalaJSPipeline).value,
     libraryDependencies ++= Seq(
+      Dependencies.zio.value,
       Dependencies.`circe-generic`.value,
       Dependencies.`circe-java8`.value,
       Dependencies.`http4s-core`,

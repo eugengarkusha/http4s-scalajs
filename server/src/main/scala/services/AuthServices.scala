@@ -7,7 +7,7 @@ import auth.dto.{SignInUpData, UserInfo}
 import cats.Monad
 import cats.data.EitherT
 import cats.effect.Effect
-import org.http4s.{HttpService, QueryParamDecoder, Response, Status, Uri}
+import org.http4s.{HttpRoutes, Response, Uri}
 import org.http4s.dsl.Http4sDsl
 import org.http4s.circe._
 import io.circe.syntax._
@@ -48,9 +48,9 @@ class AuthServices[F[_], A](authentiator: Authenticator[F, UserInfo, UserInfo, A
       r <- Ok(authedUser.asJson).map(signInResponsePostProcess(authenticator, _))
     } yield r
 
-  val signInUpService: HttpService[F] = {
+  val signInUpService: HttpRoutes[F] = {
 
-    HttpService {
+    HttpRoutes.of[F] {
       //Where user is the case class User above
       case request @ POST -> Root / "api" / "auth" / "sign-in" =>
         for {
@@ -75,7 +75,7 @@ class AuthServices[F[_], A](authentiator: Authenticator[F, UserInfo, UserInfo, A
             } yield Response[F](Ok)
         } yield res
 
-      //TODO: Introduce ADT-like errors in payliad response in addition to codes (this will give compile time safety and better documentation).
+      //TODO: Introduce ADT-like errors in payload response in addition to codes (this will give compile time safety and better documentation).
       //structure : 200 - Result type , non-200-th -error ADT
       case request @ POST -> Root / "api" / "auth" / "activation" :? UuidVal(uuid) =>
         val res: EitherT[F, Response[F], Response[F]] = for {

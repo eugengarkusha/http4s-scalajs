@@ -7,9 +7,9 @@ object Dependencies extends DependencyBuilders {
 
   object Versions {
     val scala = "2.12.8"
-    val cats = "0.10"
-
-    val http4s = "0.18.7"
+    val cats = "2.0.0-M1"
+    val zio = "1.0-RC4"
+    val http4s = "0.20.1"
     val twirl = "1.3.15"
     val paradise = "2.1.1"
     val scalatest = "3.0.3"
@@ -20,7 +20,7 @@ object Dependencies extends DependencyBuilders {
     val `scalajs-dom` = "0.9.7"
     val react = "16.8"
     val `kind-projector` = "0.9.6"
-    val tsec = "0.0.1-M11"
+    val tsec = "0.1.0"
     val monocle = "1.5.1-cats"
 
   }
@@ -45,7 +45,6 @@ object Dependencies extends DependencyBuilders {
     "io.github.jmcardon" %% "tsec-signatures" % Versions.tsec,
     "io.github.jmcardon" %% "tsec-hash-jca" % Versions.tsec,
     "io.github.jmcardon" %% "tsec-hash-bouncy" % Versions.tsec,
-    "io.github.jmcardon" %% "tsec-libsodium" % Versions.tsec,
     "io.github.jmcardon" %% "tsec-jwt-mac" % Versions.tsec,
     "io.github.jmcardon" %% "tsec-jwt-sig" % Versions.tsec,
     "io.github.jmcardon" %% "tsec-http4s" % Versions.tsec
@@ -58,6 +57,7 @@ object Dependencies extends DependencyBuilders {
   val `monocle-core` = Def.setting("com.github.julien-truffaut" %%% "monocle-core" % Versions.monocle)
   val `cats-effect` = Def.setting("org.typelevel" %%% "cats-effect" % Versions.cats)
   val `cats-core` = Def.setting("org.typelevel" %%% "cats-core" % Versions.cats)
+  val zio = Def.setting("org.scalaz" %%% "scalaz-zio" % Versions.zio)
   val scalatest = Def.setting("org.scalatest" %% "scalatest" % Versions.scalatest)
   val `circe-generic` = Def.setting("io.circe" %%% "circe-generic" % Versions.circe)
   val `circe-java8` = Def.setting("io.circe" %%% "circe-java8" % Versions.circe)

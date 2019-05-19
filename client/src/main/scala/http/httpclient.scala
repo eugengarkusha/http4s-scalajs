@@ -1,6 +1,5 @@
 package http
 
-import java.nio.ByteBuffer
 
 import cats.syntax.either._
 import io.circe.parser.parse

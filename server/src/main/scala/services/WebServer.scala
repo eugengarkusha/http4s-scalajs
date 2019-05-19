@@ -6,35 +6,27 @@ import java.util.concurrent.ScheduledThreadPoolExecutor
 
 import auth.dto.UserInfo
 import fs2._
-import fs2.Stream.ToEffect
 import org.http4s._
-import org.http4s.server.blaze.BlazeBuilder
+import org.http4s.server.blaze.BlazeServerBuilder
+import org.http4s.server.blaze._
+import org.http4s.implicits._
 import dal.{SignUpDal, SignUpRecord, UserDal}
 import misc.SharedVariables.cookieName
-import tsec.authentication.{
-  AuthenticatedCookie,
-  BackingStore,
-  IdentityStore,
-  SecuredRequestHandler,
-  SignedCookieAuthenticator,
-  TSecAuthService,
-  TSecCookieSettings
-}
+import tsec.authentication.{AuthenticatedCookie, BackingStore, IdentityStore, SecuredRequestHandler, SignedCookieAuthenticator, TSecAuthService, TSecCookieSettings}
 import cats.data.{Kleisli, OptionT}
-import cats.effect.IO
-import cats.instances.option._
-import cats.syntax.semigroupk._
-import cats.syntax.list._
+import cats.effect.{ExitCode, IO, IOApp}
 import tsec.mac.jca.HMACSHA256
+import fs2.Stream
+import cats.implicits._
+import org.http4s.server.Router
 
 import scala.collection.concurrent.TrieMap
+import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._
-import scala.concurrent.ExecutionContext.Implicits.global
 
-object WebServer extends App {
+object WebServer extends IOApp {
 
   private val key = HMACSHA256.unsafeGenerateKey
-  implicit val scheduler = Scheduler.fromScheduledExecutorService(new ScheduledThreadPoolExecutor(2))
 
   //TODO: Inject
   val usrDal = new UserDal[IO]()
@@ -51,7 +43,7 @@ object WebServer extends App {
       println(s"[${Instant.now}] $msg")
     }
 
-    scheduler
+    Stream
       .fixedRate[IO](1.minute)
       .>>(Stream.eval(signUpDal.deleteOlderThan(1.minute)))
       .flatMap(v => Stream.eval(logRemovedRecords(v)))
@@ -61,7 +53,6 @@ object WebServer extends App {
       }
   }
 
-  signUpExpirationWorker.compile.last.unsafeRunAsync(_ => ())
 
 /////// Setting up the authenticator////////////////////////////////////////////////////////////////////////////////
 
@@ -73,7 +64,7 @@ object WebServer extends App {
       cookieName = cookieName,
       //https://en.wikipedia.org/wiki/Secure_cookies
       secure = false,
-      expiryDuration = 200.seconds, // Absolute expiration time
+      expiryDuration = 20.seconds, // Absolute expiration time
       maxIdle = None, // Rolling window expiration. Makes expiration time refresh after each sucessfull request
       path = Some("/")
     )
@@ -113,10 +104,15 @@ object WebServer extends App {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 //////////////////////////////////////Instantiating services//////////////////////////////////////////////////////////
-  val bootstrapService: HttpService[IO] = new BootStrapService[IO].service
+  // TODO: configure blockingEc properly
+  val blockingEc = ExecutionContext.fromExecutor(new ScheduledThreadPoolExecutor(5))
+
+  val serverPort = 9001
+  //scala.concurrent.ExecutionContext.Implicits.global
+  val bootstrapService: HttpRoutes[IO] = new BootStrapService[IO](blockingEc).service
 
   def sendActivationMail(email: String, activationPath: Uri): IO[Unit] =
-    IO(println(s"sending activation uri: ${baseUri.resolve(activationPath)} to $email"))
+    IO(println(s"sending activation uri: ${Uri(path = s"localhost:$serverPort/").resolve(activationPath)} to $email"))
 
   val authServices: AuthServices[IO, AuthenticatedCookie[HMACSHA256, UserInfo]] =
     new AuthServices[IO, AuthenticatedCookie[HMACSHA256, UserInfo]](
@@ -130,30 +126,34 @@ object WebServer extends App {
   val testServices =
     new TestServices[IO, AuthenticatedCookie[HMACSHA256, UserInfo]](cookieAuth)
 
-  val allServices: HttpService[IO] =
+
+  val allServices: HttpRoutes[IO] =
     bootstrapService <+>
       authServices.signInUpService <+>
-      /*
-       * Composing authenticated services separately.
-       * Reason:  Auth.liftService translates Option(NotFound) to NotAuthrorized(not authenticated)
-       * to protect from web crawlers(spidering). The same idea as in org.http4s.AuthMiddleware.noSpider
-       */
+    // lifting authed services without fallthrough so that if user is not authorized
+    // all requests to the unknown endpoints result in 401(Unauthorized).
+    // this is done from web crawlers(spidering).
+    // IMPORTANT: Authed services must be in the end of the chain otherwise rhe request will shortcut with 401.
       Auth.liftService(
         testServices.authedTestService <+>
-          authServices.signOutService
+        authServices.signOutService
       )
 
+  // TODO: fail with not authorized (see noSpider)
+  val httpApp = Router("/" -> allServices).orNotFound
+
+  val server = BlazeServerBuilder[IO]
+    .bindHttp(serverPort, "localhost")
+    .withHttpApp(httpApp)
+    .resource.use(s =>
+    IO(println(println(s"ServerX is online! ${s.baseUri}"))) >>
+      IO.never
+  )
+    .start
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-////////////////////////////////////Start server////////////////////////////////////////////////////////////////////////
-  val server = BlazeBuilder[IO]
-    .bindHttp(9001, "localhost")
-    .mountService(allServices, "/")
-    .start
-    .unsafeRunSync()
+////////////////////////////////////Start server and signUpExpirationWorker///////////////////////////////////////////////////////
 
-  lazy val baseUri = server.baseUri
-  println(s"ServerX is online! ${server.baseUri}")
-  Thread.sleep(1099092013)
-
+  override def run(args: List[String]): IO[ExitCode] =
+    (signUpExpirationWorker.compile.last -> server).parMapN((_, _) => ExitCode.Success)
 }

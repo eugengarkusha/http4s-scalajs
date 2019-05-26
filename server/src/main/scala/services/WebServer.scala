@@ -123,8 +123,7 @@ object WebServer extends CatsApp {
       sendActivationMail
     )
 
-  val testServices =
-    new TestServices[AuthenticatedCookie[HMACSHA256, UserInfo]](cookieAuth)
+  val testServices = new TestServices[AuthenticatedCookie[HMACSHA256, UserInfo]]
 
 
   val allServices: HttpRoutes[Task] =

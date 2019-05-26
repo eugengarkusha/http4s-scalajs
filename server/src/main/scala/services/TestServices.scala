@@ -4,15 +4,13 @@ import java.time.ZonedDateTime
 
 import _root_.io.circe.syntax._
 import auth.dto.UserInfo
-import cats.effect.Effect
-import cats.InvariantMonoidal
 import org.http4s.dsl.Http4sDsl
 import org.http4s.circe._
 import scalaz.zio.Task
 import tsec.authentication._
 import scalaz.zio.interop.catz._
 
-class TestServices[A](authentiator: Authenticator[Task, UserInfo, UserInfo, A]) {
+class TestServices[A] {
 
   implicit val dsl = Http4sDsl[Task]
 

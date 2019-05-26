@@ -1,0 +1,19 @@
+<configuration scan="true" scanPeriod="60 seconds">
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%date %level %logger{15} - %message%n%xException{30}</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="ASYNCSTDOUT" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="STDOUT" />
+    </appender>
+
+<!--    <logger name="org.apache.spark.executor.Executor" level="ERROR" />-->
+
+    <root level="WARN">
+        <appender-ref ref="ASYNCSTDOUT" />
+    </root>
+
+</configuration>

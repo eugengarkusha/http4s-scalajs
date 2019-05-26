@@ -90,6 +90,7 @@ lazy val server = (project in file("server"))
     libraryDependencies ++= Seq(
       Dependencies.zio.value,
       Dependencies.`zio-cats`.value,
+      Dependencies.logback,
       Dependencies.`circe-generic`.value,
       Dependencies.`circe-java8`.value,
       Dependencies.`http4s-core`,

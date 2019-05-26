@@ -22,6 +22,7 @@ object Dependencies extends DependencyBuilders {
     val `kind-projector` = "0.9.6"
     val tsec = "0.1.0"
     val monocle = "1.5.1-cats"
+    val logback = "1.2.3"
 
   }
 
@@ -35,6 +36,9 @@ object Dependencies extends DependencyBuilders {
   val `tsec-common` = "io.github.jmcardon" %% "tsec-common" % Versions.tsec
   val `tsec-jwt-core` = "io.github.jmcardon" %% "tsec-jwt-core" % Versions.tsec
   val `tsec-jwt-mac` = "io.github.jmcardon" %% "tsec-jwt-mac" % Versions.tsec
+
+  val logback = "ch.qos.logback" % "logback-classic" % Versions.logback
+
   //TODO: SEPARATE!
   val tsecAll = Seq(
     "io.github.jmcardon" %% "tsec-common" % Versions.tsec,
